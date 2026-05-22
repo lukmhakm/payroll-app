@@ -234,6 +234,7 @@ export default function Home() {
         <PayrollAnalytics
           employees={employees}
           attendances={attendances}
+          selectedMonth={selectedMonth}
         />
 
         <div className="mt-10">
