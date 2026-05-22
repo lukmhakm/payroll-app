@@ -3,13 +3,15 @@
 import { supabase } from '@/lib/supabase'
 
 type Props = {
-    histories?: any[]
-    refreshPayrollHistories?: any
+    histories: any[]
+    refreshPayrollHistories: any
+    onSelectHistory: any
 }
 
 export default function PayrollHistory({
-    histories = [],
+    histories,
     refreshPayrollHistories,
+    onSelectHistory,
 }: Props) {
 
     async function markAsPaid(
@@ -161,7 +163,16 @@ export default function PayrollHistory({
 
                                                 <div
                                                     key={item.id}
-                                                    className="flex items-center justify-between bg-black/40 rounded-xl p-4"
+                                                    onClick={() =>
+                                                        onSelectHistory?.(item)
+                                                    }
+                                                    className="
+                                                        flex items-center justify-between
+                                                        bg-black/40 rounded-xl p-4
+                                                        cursor-pointer
+                                                        hover:border hover:border-zinc-700
+                                                        transition
+                                                    "
                                                 >
 
                                                     <div>
@@ -197,11 +208,10 @@ export default function PayrollHistory({
                                                         {
                                                             item.status !== 'paid' && (
                                                                 <button
-                                                                    onClick={() =>
-                                                                        markAsPaid(
-                                                                            item.id
-                                                                        )
-                                                                    }
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation()
+                                                                        markAsPaid(item.id)
+                                                                    }}
                                                                     className="
                                                                         mt-3
                                                                         text-xs
