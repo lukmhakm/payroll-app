@@ -125,7 +125,7 @@ export default function SalarySlip({
             <div>Potongan</div>
 
             <div className="text-right text-red-500">
-              Rp {Number(payroll.totalDeduction ?? payroll.deduction || 0).toLocaleString()}
+              Rp {Number((payroll.totalDeduction ?? payroll.deduction) || 0).toLocaleString()}
             </div>
           </div>
         )}
