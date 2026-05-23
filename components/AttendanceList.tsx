@@ -4,13 +4,17 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import EditAttendanceModal from '@/components/EditAttendanceModal'
 
-type Props = { attendances: any[]; selectedMonth: string }
+type Props = {
+    attendances: any[]
+    employees: any[]
+    selectedMonth: string
+}
 
-export default function AttendanceList({ attendances,
-
+export default function AttendanceList({
+    attendances,
     employees,
-
-    selectedMonth, }: Props) {
+    selectedMonth,
+}: Props) {
     const [editingAttendance, setEditingAttendance] = useState<any>(null)
 
     async function deleteAttendance(id: string) {
@@ -171,9 +175,13 @@ export default function AttendanceList({ attendances,
                     </details>
                 ))}
             </div>
-            {editingAttendance && <EditAttendanceModal attendance={editingAttendance}
-
-                employees={employees} onClose={() => setEditingAttendance(null)} />}
+            {editingAttendance && (
+                <EditAttendanceModal
+                    attendance={editingAttendance}
+                    employees={employees}
+                    onClose={() => setEditingAttendance(null)}
+                />
+            )}
         </div>
     )
 }
