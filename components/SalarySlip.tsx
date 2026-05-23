@@ -27,7 +27,7 @@ export default function SalarySlip({
 
         <div>
           <div className="text-4xl font-bold">
-            Salary Slip
+            Salary Slip DEBUG
           </div>
 
           <div className="text-zinc-500 mt-2">
@@ -58,6 +58,10 @@ export default function SalarySlip({
           <div className="font-bold text-2xl mt-1">
             {employee.name}
           </div>
+
+          <pre className="text-[10px] mt-2 bg-zinc-100 p-2 rounded-lg overflow-x-auto">
+            {JSON.stringify(employee, null, 2)}
+          </pre>
 
           <div className="text-zinc-500 mt-1">
             {employee.position}
@@ -95,25 +99,36 @@ export default function SalarySlip({
         </div>
 
         <div className="grid grid-cols-2 p-4 border-t border-zinc-200">
-          <div>Gaji Pokok</div>
-          <div className="text-right">
-            Rp {employee.base_salary.toLocaleString()}
+          <div>
+            {employee.employment_type === 'freelance'
+              ? `Daily Salary • ${payroll.hadirCount || 0} Hari Kerja`
+              : 'Gaji Pokok'}
+          </div>
+
+          <div className="text-right font-semibold">
+            {employee.employment_type === 'freelance'
+              ? `Rp ${((payroll.hadirCount || 0) * Number(employee.base_salary || 0)).toLocaleString()}`
+              : `Rp ${employee.base_salary.toLocaleString()}`}
           </div>
         </div>
 
         <div className="grid grid-cols-2 p-4 border-t border-zinc-200">
-          <div>Uang Lembur</div>
+          <div>Total Lembur</div>
+
           <div className="text-right">
             Rp {payroll.totalOvertimePay.toLocaleString()}
           </div>
         </div>
 
-        <div className="grid grid-cols-2 p-4 border-t border-zinc-200">
-          <div>Potongan</div>
-          <div className="text-right text-red-500">
-            Rp {payroll.totalDeduction.toLocaleString()}
+        {employee.employment_type !== 'freelance' && Number((payroll.totalDeduction ?? payroll.deduction) || 0) > 0 && (
+          <div className="grid grid-cols-2 p-4 border-t border-zinc-200">
+            <div>Potongan</div>
+
+            <div className="text-right text-red-500">
+              Rp {Number(payroll.totalDeduction ?? payroll.deduction || 0).toLocaleString()}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="grid grid-cols-2 p-5 border-t border-zinc-200 bg-zinc-50">
 

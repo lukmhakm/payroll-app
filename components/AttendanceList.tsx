@@ -4,373 +4,176 @@ import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import EditAttendanceModal from '@/components/EditAttendanceModal'
 
-type Props = {
-    attendances: any[]
-    selectedMonth: string
-}
+type Props = { attendances: any[]; selectedMonth: string }
 
-export default function AttendanceList({
-    attendances,
-    selectedMonth,
-}: Props) {
+export default function AttendanceList({ attendances,
 
-    const [openYears, setOpenYears] =
-        useState<any>({})
+    employees,
 
-    const [openMonths, setOpenMonths] =
-        useState<any>({})
-
-    const [openDates, setOpenDates] =
-        useState<any>({})
-
-    const [
-        editingAttendance,
-        setEditingAttendance,
-    ] = useState<any>(null)
+    selectedMonth, }: Props) {
+    const [editingAttendance, setEditingAttendance] = useState<any>(null)
 
     async function deleteAttendance(id: string) {
-
-        const confirmed =
-            confirm('Hapus attendance ini?')
-
-        if (!confirmed) return
-
-        await supabase
-            .from('attendance')
-            .delete()
-            .eq('id', id)
-
+        if (!confirm('Hapus attendance ini?')) return
+        await supabase.from('attendance').delete().eq('id', id)
         location.reload()
     }
 
-    function getStatusColor(
-        status: string
-    ) {
-
-        switch (status) {
-
-            case 'hadir':
-                return 'bg-green-500/20 text-green-400'
-
-            case 'izin':
-                return 'bg-yellow-500/20 text-yellow-400'
-
-            case 'sakit':
-                return 'bg-blue-500/20 text-blue-400'
-
-            case 'alpha':
-                return 'bg-red-500/20 text-red-400'
-
-            case 'libur':
-                return 'bg-zinc-500/20 text-zinc-300'
-
-            default:
-                return 'bg-zinc-500/20 text-zinc-300'
-        }
-    }
-
-    const filteredAttendances =
-        attendances.filter(
-            (attendance) =>
-                attendance.work_date?.startsWith(
-                    selectedMonth
-                )
-        )
-
+    const filteredAttendances = attendances.filter((a) => a.work_date?.startsWith(selectedMonth))
     const groupedData: any = {}
-
-    filteredAttendances.forEach((attendance) => {
-
-        const date =
-            new Date(attendance.work_date)
-
-        const year =
-            date.getFullYear()
-
-        const month =
-            date.toLocaleString(
-                'id-ID',
-                { month: 'long' }
-            )
-
-        const day =
-            attendance.work_date
-
-        if (!groupedData[year]) {
-            groupedData[year] = {}
-        }
-
-        if (!groupedData[year][month]) {
-            groupedData[year][month] = {}
-        }
-
-        if (!groupedData[year][month][day]) {
-            groupedData[year][month][day] = []
-        }
-
-        groupedData[year][month][day]
-            .push(attendance)
+    filteredAttendances.forEach((a) => {
+        const date = new Date(a.work_date)
+        const year = date.getFullYear()
+        const month = date.toLocaleString('id-ID', { month: 'long' })
+        const day = a.work_date
+        if (!groupedData[year]) groupedData[year] = {}
+        if (!groupedData[year][month]) groupedData[year][month] = {}
+        if (!groupedData[year][month][day]) groupedData[year][month][day] = []
+        groupedData[year][month][day].push(a)
     })
 
     return (
-        <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
+        <div className="mt-12">
+            <h3 className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none text-[#E43427] mb-6 px-1">Riwayat Absensi</h3>
+            <div className="space-y-6">
+                {Object.entries(groupedData).map(([year, months]: any) => (
+                    <details
+                        key={year}
+                        open
+                        className="bg-[#111111] rounded-[36px] border-4 border-[#111111] shadow-[8px_8px_0px_#15438D] overflow-hidden"
+                    >
+                        <summary className="list-none cursor-pointer px-6 py-5 flex items-center justify-between bg-[#111111]">
+                            <div className="inline-flex items-center px-4 py-2 bg-[#F3EBD9] border-2 border-[#111111] rounded-full">
+                                <span className="text-[#111111] text-2xl font-black tracking-tight">
+                                    {year}
+                                </span>
+                            </div>
 
-            <h2 className="text-2xl font-semibold mb-6">
-                Attendance History
-            </h2>
+                            <span className="w-8 h-8 rounded-full bg-[#F3EBD9] text-[#111111] flex items-center justify-center font-bold text-sm shrink-0">
+                                ▼
+                            </span>
+                        </summary>
 
-            <div className="space-y-4">
-
-                {
-                    Object.entries(groupedData)
-                        .map(([year, months]: any) => {
-
-                            const yearOpen =
-                                openYears[year]
-
-                            return (
-                                <div
-                                    key={year}
-                                    className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden"
+                        <div className="p-5 space-y-5 bg-[#111111]">
+                            {Object.entries(months).map(([month, dates]: any) => (
+                                <details
+                                    key={month}
+                                    className="bg-[#F3EBD9] rounded-[32px] border-4 border-[#111111] overflow-hidden"
                                 >
-
-                                    <button
-                                        onClick={() =>
-                                            setOpenYears({
-                                                ...openYears,
-                                                [year]: !yearOpen,
-                                            })
-                                        }
-                                        className="w-full p-5 flex items-center justify-between"
-                                    >
-
-                                        <div className="text-2xl font-bold">
-                                            {year}
+                                    <summary className="list-none cursor-pointer px-6 py-5 bg-[#15438D] flex items-center justify-between">
+                                        <div>
+                                            <h5 className="text-[#F3EBD9] text-3xl font-black uppercase tracking-tight leading-none">
+                                                {month}
+                                            </h5>
+                                            <p className="text-[#F3EBD9]/80 text-sm font-bold uppercase mt-2 tracking-wide">
+                                                {Object.keys(dates).length} Hari Attendance
+                                            </p>
                                         </div>
 
-                                        <div className="text-2xl">
-                                            {yearOpen ? '−' : '+'}
-                                        </div>
+                                        <span className="w-8 h-8 rounded-full bg-[#F3EBD9] text-[#111111] flex items-center justify-center font-bold text-sm shrink-0">
+                                            ▼
+                                        </span>
+                                    </summary>
 
-                                    </button>
+                                    <div className="p-5 space-y-4">
+                                        {Object.entries(dates).map(([date, items]: any) => (
+                                            <details
+                                                key={date}
+                                                className="bg-[#E43427] border-4 border-[#111111] rounded-[28px] overflow-hidden"
+                                            >
+                                                <summary className="list-none cursor-pointer px-5 py-4 flex items-center justify-between">
+                                                    <div>
+                                                        <div className="text-[#F3EBD9] text-2xl font-black tracking-tight leading-none">
+                                                            {date}
+                                                        </div>
+                                                        <div className="text-[#F3EBD9]/80 text-xs uppercase font-bold tracking-wider mt-2">
+                                                            {items.length} Record
+                                                        </div>
+                                                    </div>
 
-                                    {
-                                        yearOpen && (
-                                            <div className="border-t border-zinc-800 p-4 space-y-4">
+                                                    <span className="w-8 h-8 rounded-full bg-[#F3EBD9] text-[#111111] flex items-center justify-center font-bold text-sm shrink-0">
+                                                        ▼
+                                                    </span>
+                                                </summary>
 
-                                                {
-                                                    Object.entries(months)
-                                                        .map(([month, dates]: any) => {
+                                                <div className="px-4 pb-4 space-y-3">
+                                                    {items.map((item: any) => (
+                                                        <div
+                                                            key={item.id}
+                                                            className="bg-[#F3EBD9] border-4 border-[#111111] rounded-[24px] p-4"
+                                                        >
+                                                            <div className="flex items-start justify-between gap-4">
+                                                                <div className="flex-1 min-w-0">
+                                                                    <div className="text-[#111111] text-2xl font-black uppercase leading-none tracking-tight">
+                                                                        {item.employees?.name || 'Employee'}
+                                                                    </div>
 
-                                                            const monthKey =
-                                                                `${year}-${month}`
+                                                                    <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+                                                                        <div>
+                                                                            <div className="text-[11px] font-black uppercase tracking-[0.08em] text-[#15438D] mb-1">
+                                                                                Masuk
+                                                                            </div>
+                                                                            <div className="text-[#111111] text-xl font-black tracking-tight leading-none">
+                                                                                {item.check_in || '--:--'}
+                                                                            </div>
+                                                                        </div>
 
-                                                            const monthOpen =
-                                                                openMonths[monthKey]
+                                                                        <div>
+                                                                            <div className="text-[11px] font-black uppercase tracking-[0.08em] text-[#111111]/60 mb-1">
+                                                                                Keluar
+                                                                            </div>
+                                                                            <div className="text-[#111111] text-xl font-black tracking-tight leading-none">
+                                                                                {item.check_out || '--:--'}
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
 
-                                                            return (
-                                                                <div
-                                                                    key={month}
-                                                                    className="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden"
-                                                                >
+                                                                    <div className="mt-4 inline-flex px-3 py-1 bg-[#E43427] text-[#F3EBD9] rounded-full border-2 border-[#111111] text-xs font-black uppercase tracking-wide leading-none">
+                                                                        {item.status || 'Hadir'}
+                                                                    </div>
+                                                                </div>
 
+                                                                <div className="flex flex-col gap-2 shrink-0">
                                                                     <button
-                                                                        onClick={() =>
-                                                                            setOpenMonths({
-                                                                                ...openMonths,
-                                                                                [monthKey]: !monthOpen,
-                                                                            })
-                                                                        }
-                                                                        className="w-full p-4 flex items-center justify-between"
+                                                                        type="button"
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault()
+                                                                            e.stopPropagation()
+                                                                            setEditingAttendance(item)
+                                                                        }}
+                                                                        className="bg-[#15438D] text-[#F3EBD9] px-4 py-2 rounded-2xl font-black text-xs uppercase tracking-wide shadow-[3px_3px_0px_#111111] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
                                                                     >
-
-                                                                        <div className="text-xl font-semibold">
-                                                                            {month}
-                                                                        </div>
-
-                                                                        <div className="text-xl">
-                                                                            {monthOpen ? '−' : '+'}
-                                                                        </div>
-
+                                                                        Edit
                                                                     </button>
 
-                                                                    {
-                                                                        monthOpen && (
-                                                                            <div className="border-t border-zinc-800 p-4 space-y-4">
-
-                                                                                {
-                                                                                    Object.entries(dates)
-                                                                                        .map(([date, items]: any) => {
-
-                                                                                            const dateOpen =
-                                                                                                openDates[date]
-
-                                                                                            const totalOvertime =
-                                                                                                items.reduce(
-                                                                                                    (
-                                                                                                        total: number,
-                                                                                                        item: any
-                                                                                                    ) =>
-                                                                                                        total +
-                                                                                                        Number(
-                                                                                                            item.overtime_hours || 0
-                                                                                                        ),
-                                                                                                    0
-                                                                                                )
-
-                                                                                            return (
-                                                                                                <div
-                                                                                                    key={date}
-                                                                                                    className="bg-zinc-950 border border-zinc-800 rounded-2xl overflow-hidden"
-                                                                                                >
-
-                                                                                                    <button
-                                                                                                        onClick={() =>
-                                                                                                            setOpenDates({
-                                                                                                                ...openDates,
-                                                                                                                [date]: !dateOpen,
-                                                                                                            })
-                                                                                                        }
-                                                                                                        className="w-full p-4 flex items-center justify-between"
-                                                                                                    >
-
-                                                                                                        <div className="text-left">
-
-                                                                                                            <div className="font-bold">
-                                                                                                                {date}
-                                                                                                            </div>
-
-                                                                                                            <div className="text-zinc-400 text-sm mt-1">
-                                                                                                                {items.length} attendance
-                                                                                                                • {totalOvertime} jam lembur
-                                                                                                            </div>
-
-                                                                                                        </div>
-
-                                                                                                        <div>
-                                                                                                            {dateOpen ? '−' : '+'}
-                                                                                                        </div>
-
-                                                                                                    </button>
-
-                                                                                                    {
-                                                                                                        dateOpen && (
-                                                                                                            <div className="border-t border-zinc-800">
-
-                                                                                                                {
-                                                                                                                    items.map((attendance: any) => (
-
-                                                                                                                        <div
-                                                                                                                            key={attendance.id}
-                                                                                                                            className="p-5 border-b border-zinc-800 last:border-none"
-                                                                                                                        >
-
-                                                                                                                            <div className="flex items-start justify-between">
-
-                                                                                                                                <div>
-
-                                                                                                                                    <div className="text-lg font-semibold">
-                                                                                                                                        {attendance.employees?.name}
-                                                                                                                                    </div>
-
-                                                                                                                                    <div className="text-zinc-400 mt-1">
-                                                                                                                                        {attendance.check_in}
-                                                                                                                                        {' - '}
-                                                                                                                                        {attendance.check_out}
-                                                                                                                                    </div>
-
-                                                                                                                                    <div
-                                                                                                                                        className={`mt-3 px-3 py-1 rounded-full text-xs font-semibold w-fit capitalize ${getStatusColor(attendance.status)}`}
-                                                                                                                                    >
-                                                                                                                                        {attendance.status}
-                                                                                                                                    </div>
-
-                                                                                                                                </div>
-
-                                                                                                                                <div className="text-right">
-
-                                                                                                                                    <div className="text-green-400 font-bold">
-                                                                                                                                        {attendance.overtime_hours || 0} jam
-                                                                                                                                    </div>
-
-                                                                                                                                    <div className="flex gap-2 mt-3">
-
-                                                                                                                                        <button
-                                                                                                                                            onClick={() =>
-                                                                                                                                                setEditingAttendance(
-                                                                                                                                                    attendance
-                                                                                                                                                )
-                                                                                                                                            }
-                                                                                                                                            className="px-3 py-1 rounded-lg bg-white text-black text-sm"
-                                                                                                                                        >
-                                                                                                                                            Edit
-                                                                                                                                        </button>
-
-                                                                                                                                        <button
-                                                                                                                                            onClick={() =>
-                                                                                                                                                deleteAttendance(
-                                                                                                                                                    attendance.id
-                                                                                                                                                )
-                                                                                                                                            }
-                                                                                                                                            className="px-3 py-1 rounded-lg bg-red-500 text-white text-sm"
-                                                                                                                                        >
-                                                                                                                                            Hapus
-                                                                                                                                        </button>
-
-                                                                                                                                    </div>
-
-                                                                                                                                </div>
-
-                                                                                                                            </div>
-
-                                                                                                                        </div>
-
-                                                                                                                    ))
-                                                                                                                }
-
-                                                                                                            </div>
-                                                                                                        )
-                                                                                                    }
-
-                                                                                                </div>
-                                                                                            )
-                                                                                        })
-                                                                                }
-
-                                                                            </div>
-                                                                        )
-                                                                    }
-
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={(e) => {
+                                                                            e.preventDefault()
+                                                                            e.stopPropagation()
+                                                                            deleteAttendance(item.id)
+                                                                        }}
+                                                                        className="bg-[#111111] text-[#F3EBD9] px-4 py-2 rounded-2xl font-black text-xs uppercase tracking-wide shadow-[3px_3px_0px_#000000] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                                                                    >
+                                                                        Hapus
+                                                                    </button>
                                                                 </div>
-                                                            )
-                                                        })
-                                                }
-
-                                            </div>
-                                        )
-                                    }
-
-                                </div>
-                            )
-                        })
-                }
-
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </details>
+                                        ))}
+                                    </div>
+                                </details>
+                            ))}
+                        </div>
+                    </details>
+                ))}
             </div>
-            {
-                editingAttendance && (
-                    <EditAttendanceModal
-                        attendance={
-                            editingAttendance
-                        }
-                        onClose={() =>
-                            setEditingAttendance(
-                                null
-                            )
-                        }
-                    />
-                )
-            }
+            {editingAttendance && <EditAttendanceModal attendance={editingAttendance}
 
+                employees={employees} onClose={() => setEditingAttendance(null)} />}
         </div>
     )
 }
