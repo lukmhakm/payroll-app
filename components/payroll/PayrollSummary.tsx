@@ -97,7 +97,7 @@ export default function PayrollSummary({
     }
 
     return (
-        <div className="mt-4 space-y-6">
+        <div className="space-y-6">
             {/* Teks di luar card: Retro Red */}
                 <h2 className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none text-[var(--theme-accent)] mb-4 px-1 transition-colors duration-300">
                 Payroll Summary

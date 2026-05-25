@@ -63,6 +63,12 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
             return
         }
 
+        if (alreadyInputtedSelectedEmployees.length > 0) {
+            alert(`Gagal: Terdapat ${alreadyInputtedSelectedEmployees.length} karyawan terpilih yang sudah diabsen pada tanggal ini. Silakan hapus centangnya terlebih dahulu.`)
+            setLoading(false)
+            return
+        }
+
         setLoading(true)
 
         const { error } = await supabase.from('attendance').insert(
@@ -79,12 +85,14 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
             alert('Attendance berhasil disimpan 🔥')
             setCheckOut(''); setStatus('hadir'); setIsNationalHoliday(false); setSelectedEmployees([]);
             refreshAttendances()
+        } else {
+            alert(`Gagal menyimpan attendance: ${error.message}`)
         }
         setLoading(false)
     }
 
     return (
-        <div className="bg-[var(--theme-highlight)] border-4 border-[var(--theme-primary)] rounded-[2rem] p-8 shadow-[8px_8px_0px_var(--theme-primary)] text-[var(--theme-surface)] mt-8 transition-colors duration-300">
+        <div className="bg-[var(--theme-highlight)] border-4 border-[var(--theme-primary)] rounded-[2rem] p-8 shadow-[8px_8px_0px_var(--theme-primary)] text-[var(--theme-surface)] transition-colors duration-300">
             <h2 className="text-2xl font-black uppercase tracking-widest mb-6">Input Attendance</h2>
 
             <div className="space-y-4">
@@ -101,7 +109,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                                 ▼
                             </span>
                         </summary>
-                        <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--theme-surface)] brightness-110 border-2 border-[var(--theme-primary)] rounded-2xl shadow-[4px_4px_0px_var(--theme-primary)] overflow-hidden">
+                        <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--theme-surface)] text-[var(--theme-primary)] brightness-110 border-2 border-[var(--theme-primary)] rounded-2xl shadow-[4px_4px_0px_var(--theme-primary)] overflow-hidden">
                             <div className="max-h-[240px] overflow-y-auto p-2 space-y-1">
                                 <label className="flex items-center gap-3 p-3 hover:brightness-95 rounded-xl cursor-pointer transition-colors border-b-2 border-dashed border-[var(--theme-primary)] border-opacity-20">
                                     <input 
@@ -137,7 +145,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                         type="date" 
                         value={date} 
                         onChange={(e) => setDate(e.target.value)} 
-                        className="w-full bg-[var(--theme-surface)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-all duration-300" 
+                        className="w-full bg-[var(--theme-surface)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] [color-scheme:light] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-all duration-300" 
                     />
                     {recentDates.length > 0 && (
                         <div className="flex flex-col gap-2 mt-2">
@@ -169,7 +177,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                 {/* Jam Masuk */}
                 <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                     <span className="font-black text-[11px] uppercase tracking-[0.08em] text-[var(--theme-highlight)]">Masuk:</span>
-                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] text-lg font-black outline-none" />
+                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] [color-scheme:light] text-lg font-black outline-none" />
                 </div>
 
                 {/* Status */}
@@ -183,7 +191,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                                 ▼
                             </span>
                         </summary>
-                        <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--theme-surface)] brightness-110 border-2 border-[var(--theme-primary)] rounded-2xl shadow-[4px_4px_0px_var(--theme-primary)] overflow-hidden">
+                        <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--theme-surface)] text-[var(--theme-primary)] brightness-110 border-2 border-[var(--theme-primary)] rounded-2xl shadow-[4px_4px_0px_var(--theme-primary)] overflow-hidden">
                             <div className="max-h-[240px] overflow-y-auto p-2 space-y-1">
                                 {['hadir', 'sakit', 'izin', 'alpha', 'libur'].map((s) => (
                                     <div 
@@ -206,14 +214,14 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                 {status === 'hadir' && (
                     <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                         <span className="font-black text-[11px] uppercase tracking-[0.08em] text-[var(--theme-highlight)]">Keluar:</span>
-                        <input type="time" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] text-lg font-black outline-none" />
+                        <input type="time" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] [color-scheme:light] text-lg font-black outline-none" />
                     </div>
                 )}
 
                 {/* Checklist Libur */}
                 {status === 'hadir' && (
                     <label className="flex items-center gap-3 font-black uppercase text-sm cursor-pointer bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
-                        <input type="checkbox" checked={isNationalHoliday} onChange={(e) => setIsNationalHoliday(e.target.checked)} className="w-6 h-6 border-2 border-[var(--theme-primary)]" />
+                        <input type="checkbox" checked={isNationalHoliday} onChange={(e) => setIsNationalHoliday(e.target.checked)} className="w-6 h-6 border-2 border-[var(--theme-surface)]" />
                         Hari Libur Nasional
                     </label>
                 )}

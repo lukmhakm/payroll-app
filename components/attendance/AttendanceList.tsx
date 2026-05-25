@@ -39,8 +39,8 @@ export default function AttendanceList({
     })
 
     return (
-        <div className="mt-12">
-            <h3 className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none text-[var(--theme-accent)] mb-6 px-1 transition-colors duration-300">Riwayat Absensi</h3>
+        <div className="w-full">
+            <h3 className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none text-[var(--theme-accent)] mb-6 px-1 transition-colors duration-300">Attendance History</h3>
             <div className="space-y-6">
                 {Object.entries(groupedData).map(([year, months]: any) => (
                     <details

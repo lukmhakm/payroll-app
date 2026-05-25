@@ -76,7 +76,7 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-5 sm:px-8 pt-8 lg:pt-12 relative z-10">
 
         {/* Header Section */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-12 relative z-10">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14 md:mb-16 relative z-10">
           <div>
             <h1
               className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter uppercase mb-2 transition-colors break-words"
@@ -201,10 +201,10 @@ export default function Home() {
           </section>
 
           {/* Grid Layout untuk form & list di Desktop */}
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+          <section className="grid grid-cols-1 lg:grid-cols-2 gap-12 md:gap-16 items-start">
 
             {/* Kolom Kiri: Area Absensi */}
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-12 md:gap-16">
               <AttendanceForm
                 employees={employees}
                 attendances={attendances}
@@ -219,35 +219,37 @@ export default function Home() {
             </div>
 
             {/* Kolom Kanan: Area Karyawan */}
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-12 md:gap-16">
               <EmployeeForm addEmployee={addEmployee} />
 
-              <div className="space-y-4">
-                <h3
-                  className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none px-1 mb-4 transition-colors duration-300 text-[var(--theme-accent)]"
-                >
-                  TEAM DIRECTORY
-                </h3>
-                {employees.map((employee) => (
-                  <EmployeeCard
-                    key={employee.id}
-                    employee={employee}
-                    deleteEmployee={deleteEmployee}
-                    refreshEmployees={fetchEmployees}
-                  />
-                ))}
+              <div className="flex flex-col gap-8 md:gap-16">
+                <div>
+                  <h3
+                    className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none px-1 mb-6 transition-colors duration-300 text-[var(--theme-accent)]"
+                  >
+                    TEAM DIRECTORY
+                  </h3>
+                  <div className="space-y-4">
+                    {employees.map((employee) => (
+                      <EmployeeCard
+                        key={employee.id}
+                        employee={employee}
+                        deleteEmployee={deleteEmployee}
+                        refreshEmployees={fetchEmployees}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <PayrollHistory
+                  histories={payrollHistories}
+                  employees={employees}
+                  refreshPayrollHistories={fetchPayrollHistories}
+                  onSelectHistory={setSelectedHistory}
+                />
               </div>
             </div>
 
-          </section>
-
-          <section>
-            <PayrollHistory
-              histories={payrollHistories}
-              employees={employees}
-              refreshPayrollHistories={fetchPayrollHistories}
-              onSelectHistory={setSelectedHistory}
-            />
           </section>
         </div>
 

@@ -72,7 +72,7 @@ export default function EditAttendanceModal({ attendance, employees, onClose, re
             </button>
             <div className="space-y-5">
                 {/* Karyawan */}
-                <select value={selectedEmployee} onChange={(e) => setSelectedEmployee(e.target.value)} className="w-full bg-[var(--theme-surface)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-colors duration-300">
+                <select value={selectedEmployee} onChange={(e) => setSelectedEmployee(e.target.value)} className="w-full bg-[var(--theme-surface)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] [color-scheme:light] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-colors duration-300">
                     <option value="">Pilih Karyawan</option>
                     {employees.map((employee) => (
                         <option key={employee.id} value={employee.id}>
@@ -82,16 +82,16 @@ export default function EditAttendanceModal({ attendance, employees, onClose, re
                 </select>
 
                 {/* Tanggal */}
-                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-[var(--theme-surface)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-colors duration-300" />
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-[var(--theme-surface)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] [color-scheme:light] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-colors duration-300" />
 
                 {/* Jam Masuk */}
                 <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                     <span className="font-black text-[var(--theme-highlight)] text-[11px] uppercase tracking-[0.08em]">Masuk:</span>
-                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] text-lg font-black outline-none" />
+                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] [color-scheme:light] text-lg font-black outline-none" />
                 </div>
 
                 {/* Status Kehadiran */}
-                <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full bg-[var(--theme-surface)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-colors duration-300">
+                <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full bg-[var(--theme-surface)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] [color-scheme:light] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-colors duration-300">
                     <option value="hadir">Hadir</option>
                     <option value="sakit">Sakit</option>
                     <option value="izin">Izin</option>
@@ -103,7 +103,7 @@ export default function EditAttendanceModal({ attendance, employees, onClose, re
                 {status === 'hadir' && (
                     <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                         <span className="font-black text-[var(--theme-highlight)] text-[11px] uppercase tracking-[0.08em]">Keluar:</span>
-                        <input type="time" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] text-lg font-black outline-none" />
+                        <input type="time" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] [color-scheme:light] text-lg font-black outline-none" />
                     </div>
                 )}
 

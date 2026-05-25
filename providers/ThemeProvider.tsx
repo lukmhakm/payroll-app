@@ -23,10 +23,20 @@ type ThemeContextType = {
 }
 
 const DEFAULT_THEME: ThemePalette = {
-  primary: '#111111',
+  primary: '#2b2b2b',
   surface: '#F3EBD9',
   accent: '#E43427',
   highlight: '#15438D',
+}
+
+const normalizeColor = (color: string | null, fallback: string) => {
+  if (!color) return fallback
+  const trimmed = color.trim()
+  // Tambahkan # secara otomatis jika user menginput hex tanpa #
+  if (/^([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/.test(trimmed)) {
+    return `#${trimmed}`
+  }
+  return trimmed
 }
 
 const ThemeContext = createContext<ThemeContextType | null>(null)
@@ -43,21 +53,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const storedTheme: ThemePalette = {
-      primary:
-        localStorage.getItem(STORAGE_KEYS.primary) ||
-        DEFAULT_THEME.primary,
-
-      surface:
-        localStorage.getItem(STORAGE_KEYS.surface) ||
-        DEFAULT_THEME.surface,
-
-      accent:
-        localStorage.getItem(STORAGE_KEYS.accent) ||
-        DEFAULT_THEME.accent,
-
-      highlight:
-        localStorage.getItem(STORAGE_KEYS.highlight) ||
-        DEFAULT_THEME.highlight,
+      primary: normalizeColor(localStorage.getItem(STORAGE_KEYS.primary), DEFAULT_THEME.primary),
+      surface: normalizeColor(localStorage.getItem(STORAGE_KEYS.surface), DEFAULT_THEME.surface),
+      accent: normalizeColor(localStorage.getItem(STORAGE_KEYS.accent), DEFAULT_THEME.accent),
+      highlight: normalizeColor(localStorage.getItem(STORAGE_KEYS.highlight), DEFAULT_THEME.highlight),
     }
 
     setTheme(storedTheme)
@@ -87,8 +86,10 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const updateTheme = (payload: Partial<ThemePalette>) => {
     const updated = {
-      ...theme,
-      ...payload,
+      primary: payload.primary !== undefined ? normalizeColor(payload.primary, theme.primary) : theme.primary,
+      surface: payload.surface !== undefined ? normalizeColor(payload.surface, theme.surface) : theme.surface,
+      accent: payload.accent !== undefined ? normalizeColor(payload.accent, theme.accent) : theme.accent,
+      highlight: payload.highlight !== undefined ? normalizeColor(payload.highlight, theme.highlight) : theme.highlight,
     }
 
     setTheme(updated)

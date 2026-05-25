@@ -3,7 +3,6 @@
 ## PROJECT OVERVIEW
 
 Modern payroll management application built with:
-
 - Next.js
 - React
 - TypeScript
@@ -11,7 +10,6 @@ Modern payroll management application built with:
 - Supabase
 
 Design language:
-
 - Neo Brutalism
 - Editorial Dashboard
 - Pop-Art inspired UI
@@ -25,27 +23,20 @@ Design language:
 Supports 3 employee types:
 
 ### 1. Fulltime
-
 - Monthly salary
 - Payroll period usually starts on day 1
 - If attendance missing:
   - considered PRESENT
   - no overtime
 
----
-
 ### 2. Contract
-
 - Monthly salary
 - Payroll period can start on custom day
 - If attendance missing:
   - considered PRESENT
   - no overtime
 
----
-
 ### 3. Freelance
-
 - Daily salary
 - Salary calculated from attendance count
 - Attendance input required
@@ -53,7 +44,6 @@ Supports 3 employee types:
 - Payroll based on active working days
 
 Formula:
-
 ```text
 attendanceCount × dailySalary + overtime
 ```
@@ -322,7 +312,7 @@ theme_highlight
 ## Default Palette
 
 ```text
-Primary   → #111111
+Primary   → #2b2b2b
 Surface   → #F3EBD9
 Accent    → #E43427
 Highlight → #15438D
@@ -451,6 +441,11 @@ monthlySalary
 - eliminated prop-drilling in `app/page.tsx` by isolating form states
 - normalized legacy employment type data (`tetap` -> `fulltime`)
 - centralized global settings via `SettingsProvider` (Point 4)
+- standardized UI headings, forms, and placeholders to English for visual consistency
+- unified layout gaps and masonry balance between columns in `page.tsx`
+- added color hex normalization (auto `#` insertion) in `ThemeProvider` to prevent UI breakage
+- blocked duplicate attendance saving logic with user alert
+- repositioned `PayrollHistory` to balance masonry grid layout
 
 ---
 

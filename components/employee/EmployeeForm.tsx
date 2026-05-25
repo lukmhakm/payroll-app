@@ -60,7 +60,7 @@ export default function EmployeeForm(props: Props) {
     return (
         <div className="bg-[var(--theme-highlight)] border-4 border-[var(--theme-primary)] rounded-3xl p-6 md:p-8 shadow-[8px_8px_0px_var(--theme-primary)] transition-colors duration-300">
             <h2 className="text-2xl font-black text-[var(--theme-surface)] uppercase tracking-widest mb-6 transition-colors duration-300">
-                Tambah Karyawan
+                Add Employee
             </h2>
 
             <div className="flex flex-col gap-4">
@@ -68,16 +68,16 @@ export default function EmployeeForm(props: Props) {
                 <div className="flex flex-col">
                     <button
                         onClick={() => toggleSection('personal')}
-                        className="w-full flex items-center justify-between bg-[var(--theme-surface)] text-[var(--theme-primary)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
+                        className="w-full text-left flex items-center justify-between bg-[var(--theme-surface)] text-[var(--theme-primary)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
                     >
-                        <span>Informasi Pribadi</span>
+                        <span>Personal Information</span>
                         <span className={`transform transition-transform duration-200 ${activeSection === 'personal' ? 'rotate-180' : ''}`}>▼</span>
                     </button>
                     <div className={`grid transition-all duration-300 ease-in-out ${activeSection === 'personal' ? 'grid-rows-[1fr] opacity-100 mt-3 mb-2' : 'grid-rows-[0fr] opacity-0'}`}>
                         <div className="overflow-hidden">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 px-1 pb-2">
-                            {renderInput(name, setName, 'Nama')}
-                            {renderInput(position, setPosition, 'Jabatan')}
+                            {renderInput(name, setName, 'Name')}
+                            {renderInput(position, setPosition, 'Position')}
                                 <div className="md:col-span-2">
                                 {renderInput(email, setEmail, 'Email', 'email')}
                                 </div>
@@ -90,9 +90,9 @@ export default function EmployeeForm(props: Props) {
                 <div className="flex flex-col">
                     <button
                         onClick={() => toggleSection('payroll')}
-                        className="w-full flex items-center justify-between bg-[var(--theme-surface)] text-[var(--theme-primary)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
+                        className="w-full text-left flex items-center justify-between bg-[var(--theme-surface)] text-[var(--theme-primary)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
                     >
-                        <span>Detail Penggajian</span>
+                        <span>Payroll Details</span>
                         <span className={`transform transition-transform duration-200 ${activeSection === 'payroll' ? 'rotate-180' : ''}`}>▼</span>
                     </button>
                     <div className={`grid transition-all duration-300 ease-in-out ${activeSection === 'payroll' ? 'grid-rows-[1fr] opacity-100 mt-3 mb-2' : 'grid-rows-[0fr] opacity-0'}`}>
@@ -112,16 +112,16 @@ export default function EmployeeForm(props: Props) {
 
                             {employmentType === 'freelance' ? (
                                     <>
-                                    {renderInput(salary, setSalary, 'Tarif Gaji per Hari', 'number')}
-                                        {renderInput(freelanceDays, setFreelanceDays, 'Jumlah Hari Kerja', 'number')}
+                                    {renderInput(salary, setSalary, 'Daily Salary Rate', 'number')}
+                                        {renderInput(freelanceDays, setFreelanceDays, 'Working Days', 'number')}
                                     </>
                                 ) : (
-                                renderInput(salary, setSalary, 'Gaji Pokok Bulanan', 'number')
+                                renderInput(salary, setSalary, 'Monthly Base Salary', 'number')
                                 )}
 
-                            {renderInput(overtimeRate, setOvertimeRate, 'Tarif Lembur', 'number')}
-                            {renderInput(deduction, setDeduction, 'Potongan Per Hari', 'number')}
-                            {renderInput(payrollStartDay, setPayrollStartDay, 'Tgl Mulai Payroll', 'number')}
+                            {renderInput(overtimeRate, setOvertimeRate, 'Overtime Rate', 'number')}
+                            {renderInput(deduction, setDeduction, 'Daily Deduction', 'number')}
+                            {renderInput(payrollStartDay, setPayrollStartDay, 'Payroll Start Date', 'number')}
                             </div>
                         </div>
                     </div>
@@ -131,17 +131,17 @@ export default function EmployeeForm(props: Props) {
                 <div className="flex flex-col">
                     <button
                         onClick={() => toggleSection('bank')}
-                        className="w-full flex items-center justify-between bg-[var(--theme-surface)] text-[var(--theme-primary)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
+                        className="w-full text-left flex items-center justify-between bg-[var(--theme-surface)] text-[var(--theme-primary)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
                     >
-                        <span>Informasi Bank</span>
+                        <span>Bank Information</span>
                         <span className={`transform transition-transform duration-200 ${activeSection === 'bank' ? 'rotate-180' : ''}`}>▼</span>
                     </button>
                     <div className={`grid transition-all duration-300 ease-in-out ${activeSection === 'bank' ? 'grid-rows-[1fr] opacity-100 mt-3 mb-2' : 'grid-rows-[0fr] opacity-0'}`}>
                         <div className="overflow-hidden">
                             <div className="grid grid-cols-1 gap-4 px-1 pb-2">
-                            {renderInput(bankName, setBankName, 'Nama Bank')}
-                            {renderInput(bankAccountNumber, setBankAccountNumber, 'Nomor Rekening')}
-                            {renderInput(bankAccountName, setBankAccountName, 'Atas Nama Rekening')}
+                            {renderInput(bankName, setBankName, 'Bank Name')}
+                            {renderInput(bankAccountNumber, setBankAccountNumber, 'Account Number')}
+                            {renderInput(bankAccountName, setBankAccountName, 'Account Name')}
                             </div>
                         </div>
                     </div>
@@ -153,7 +153,7 @@ export default function EmployeeForm(props: Props) {
                 disabled={loading}
                 className="mt-8 w-full bg-[var(--theme-accent)] hover:brightness-90 disabled:opacity-70 border-4 border-[var(--theme-primary)] text-[var(--theme-surface)] py-4 rounded-2xl font-black uppercase tracking-widest shadow-[6px_6px_0px_var(--theme-primary)] active:translate-y-[4px] active:translate-x-[4px] active:shadow-none transition-all duration-300"
             >
-                {loading ? 'Menyimpan...' : 'Simpan Karyawan'}
+                {loading ? 'Saving...' : 'Save Employee'}
             </button>
         </div>
     )
