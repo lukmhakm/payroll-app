@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
+import type { PayrollAdjustment } from '@/types'
 
 export function usePayrollAdjustments(selectedMonth: string) {
-    const [adjustments, setAdjustments] = useState<any>({})
+    const [adjustments, setAdjustments] = useState<Record<string, PayrollAdjustment>>({})
 
     // Load data bonus & deduction dari local storage ketika bulan berubah
     useEffect(() => {
@@ -16,7 +17,7 @@ export function usePayrollAdjustments(selectedMonth: string) {
     }, [selectedMonth])
 
     function handleUpdateAdjustment(employeeId: string, field: 'bonus' | 'deduction', value: number) {
-        setAdjustments((prev: any) => {
+        setAdjustments((prev) => {
             const next = {
                 ...prev,
                 [employeeId]: {

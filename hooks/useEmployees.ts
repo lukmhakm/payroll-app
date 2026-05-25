@@ -1,32 +1,34 @@
 import { useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
+import type { Employee } from '@/types'
+
+export interface EmployeeFormData {
+  name: string; position: string; employmentType: string;
+  salary: string; overtimeRate: string; deduction: string;
+  bankName: string; bankAccountNumber: string; bankAccountName: string;
+  email: string; payrollStartDay: string;
+}
 
 export function useEmployees() {
-  const [employees, setEmployees] = useState<any[]>([])
-
-  const [name, setName] = useState('')
-  const [position, setPosition] = useState('')
-  const [employmentType, setEmploymentType] = useState('tetap')
-  const [salary, setSalary] = useState('')
-  const [overtimeRate, setOvertimeRate] = useState('')
-  const [deduction, setDeduction] = useState('')
-  const [bankName, setBankName] = useState('')
-  const [bankAccountNumber, setBankAccountNumber] = useState('')
-  const [bankAccountName, setBankAccountName] = useState('')
-  const [email, setEmail] = useState('')
-  const [payrollStartDay, setPayrollStartDay] = useState('1')
+  const [employees, setEmployees] = useState<Employee[]>([])
 
   const fetchEmployees = useCallback(async () => {
     const { data, error } = await supabase.from('employees').select('*')
     if (error) console.error('EMPLOYEE ERROR:', error)
     
-    const sortedData = [...(data || [])].sort((a, b) => {
+    // Normalisasi data legacy dari database agar sesuai dengan istilah baru
+    const normalizedData = (data || []).map(emp => ({
+      ...emp,
+      employment_type: emp.employment_type === 'tetap' ? 'fulltime' : (emp.employment_type === 'tidak_tetap' ? 'contract' : emp.employment_type)
+    }))
+
+    const sortedData = [...normalizedData].sort((a, b) => {
       // 1. Prioritas Tipe Pekerjaan
       const normalizeType = (type: string) => {
         const t = String(type || '').toLowerCase().trim()
-        if (t.includes('tidak')) return 2
+        if (t.includes('contract') || t.includes('tidak')) return 2
         if (t.includes('freelance')) return 3
-        // Jika tipe kosong, null, typo, atau 'tetap', paksa masuk ke prioritas 1 (Paling Atas)
+        // Jika tipe kosong, null, typo, atau 'fulltime', paksa masuk ke prioritas 1 (Paling Atas)
         return 1
       }
       
@@ -38,7 +40,7 @@ export function useEmployees() {
       }
 
       // 2. Jika tipe sama, urutkan Gaji Pokok dari yang Terbesar ke Terkecil (Descending)
-      const parseSalary = (val: any) => {
+      const parseSalary = (val: unknown) => {
         if (!val) return 0;
         const clean = String(val).replace(/[^0-9]/g, '');
         return Number(clean) || 0;
@@ -55,37 +57,25 @@ export function useEmployees() {
       return String(a.name || '').localeCompare(String(b.name || ''))
     })
 
-    setEmployees(sortedData)
+    setEmployees(sortedData as Employee[])
   }, [])
 
-  const addEmployee = async () => {
-    if (!name) return
+  const addEmployee = async (data: EmployeeFormData) => {
+    if (!data.name) return
 
     await supabase.from('employees').insert({
-      name,
-      position,
-      employment_type: employmentType,
-      base_salary: Number(salary),
-      overtime_rate: Number(overtimeRate),
-      daily_deduction: Number(deduction),
-      bank_name: bankName,
-      bank_account_number: bankAccountNumber,
-      bank_account_name: bankAccountName,
-      email,
-      payroll_start_day: Number(payrollStartDay),
+      name: data.name,
+      position: data.position,
+      employment_type: data.employmentType,
+      base_salary: Number(data.salary),
+      overtime_rate: Number(data.overtimeRate),
+      daily_deduction: Number(data.deduction),
+      bank_name: data.bankName,
+      bank_account_number: data.bankAccountNumber,
+      bank_account_name: data.bankAccountName,
+      email: data.email,
+      payroll_start_day: Number(data.payrollStartDay),
     })
-
-    setName('')
-    setPosition('')
-    setSalary('')
-    setOvertimeRate('')
-    setDeduction('')
-    setBankName('')
-    setBankAccountNumber('')
-    setBankAccountName('')
-    setEmail('')
-    setPayrollStartDay('1')
-    setEmploymentType('tetap')
 
     fetchEmployees()
   }
@@ -100,18 +90,5 @@ export function useEmployees() {
     fetchEmployees,
     addEmployee,
     deleteEmployee,
-    formState: {
-      name, setName,
-      position, setPosition,
-      employmentType, setEmploymentType,
-      salary, setSalary,
-      overtimeRate, setOvertimeRate,
-      deduction, setDeduction,
-      bankName, setBankName,
-      bankAccountNumber, setBankAccountNumber,
-      bankAccountName, setBankAccountName,
-      email, setEmail,
-      payrollStartDay, setPayrollStartDay,
-    }
   }
 }

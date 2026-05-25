@@ -62,17 +62,17 @@ export default function EditAttendanceModal({ attendance, employees, onClose, re
 
     return (
         <div className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="w-full max-w-lg bg-[#15438D] border-4 border-[#111111] rounded-[36px] p-6 shadow-[8px_8px_0px_#111111] text-[#F3EBD9] relative max-h-[90vh] overflow-y-auto">
-            <h2 className="text-3xl md:text-[40px] leading-none font-black uppercase tracking-[-0.04em] text-[#F3EBD9] mb-6 pr-12">Edit Attendance</h2>
+            <div className="w-full max-w-lg bg-[var(--theme-highlight)] border-4 border-[var(--theme-primary)] rounded-[36px] p-6 shadow-[8px_8px_0px_var(--theme-primary)] text-[var(--theme-surface)] relative max-h-[90vh] overflow-y-auto transition-colors duration-300">
+            <h2 className="text-3xl md:text-[40px] leading-none font-black uppercase tracking-[-0.04em] text-[var(--theme-surface)] mb-6 pr-12 transition-colors duration-300">Edit Attendance</h2>
             <button
                 onClick={onClose}
-                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[#E43427] text-[#F3EBD9] font-black shadow-[3px_3px_0px_#111111] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                className="absolute top-4 right-4 w-10 h-10 rounded-full bg-[var(--theme-accent)] hover:brightness-90 text-[var(--theme-surface)] font-black shadow-[3px_3px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
             >
                 ×
             </button>
             <div className="space-y-5">
                 {/* Karyawan */}
-                <select value={selectedEmployee} onChange={(e) => setSelectedEmployee(e.target.value)} className="w-full bg-[#F3EBD9] rounded-2xl px-5 py-4 text-[#111111] font-black shadow-[4px_4px_0px_#111111] outline-none">
+                <select value={selectedEmployee} onChange={(e) => setSelectedEmployee(e.target.value)} className="w-full bg-[var(--theme-surface)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-colors duration-300">
                     <option value="">Pilih Karyawan</option>
                     {employees.map((employee) => (
                         <option key={employee.id} value={employee.id}>
@@ -82,16 +82,16 @@ export default function EditAttendanceModal({ attendance, employees, onClose, re
                 </select>
 
                 {/* Tanggal */}
-                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-[#F3EBD9] rounded-2xl px-5 py-4 text-[#111111] font-black shadow-[4px_4px_0px_#111111] outline-none" />
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full bg-[var(--theme-surface)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-colors duration-300" />
 
                 {/* Jam Masuk */}
-                <div className="flex gap-3 items-center bg-[#F3EBD9] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_#111111]">
-                    <span className="font-black text-[#15438D] text-[11px] uppercase tracking-[0.08em]">Masuk:</span>
-                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 bg-transparent text-[#111111] text-lg font-black outline-none" />
+                <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
+                    <span className="font-black text-[var(--theme-highlight)] text-[11px] uppercase tracking-[0.08em]">Masuk:</span>
+                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] text-lg font-black outline-none" />
                 </div>
 
                 {/* Status Kehadiran */}
-                <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full bg-[#F3EBD9] rounded-2xl px-5 py-4 text-[#111111] font-black shadow-[4px_4px_0px_#111111] outline-none">
+                <select value={status} onChange={(e) => setStatus(e.target.value)} className="w-full bg-[var(--theme-surface)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-colors duration-300">
                     <option value="hadir">Hadir</option>
                     <option value="sakit">Sakit</option>
                     <option value="izin">Izin</option>
@@ -101,27 +101,27 @@ export default function EditAttendanceModal({ attendance, employees, onClose, re
 
                 {/* Jam Keluar (Muncul hanya jika hadir) */}
                 {status === 'hadir' && (
-                    <div className="flex gap-3 items-center bg-[#F3EBD9] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_#111111]">
-                        <span className="font-black text-[#15438D] text-[11px] uppercase tracking-[0.08em]">Keluar:</span>
-                        <input type="time" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="flex-1 bg-transparent text-[#111111] text-lg font-black outline-none" />
+                    <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
+                        <span className="font-black text-[var(--theme-highlight)] text-[11px] uppercase tracking-[0.08em]">Keluar:</span>
+                        <input type="time" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] text-lg font-black outline-none" />
                     </div>
                 )}
 
                 {/* Checklist Libur */}
                 {status === 'hadir' && (
-                    <label className="flex items-center gap-3 font-black uppercase text-sm cursor-pointer bg-[#111111] p-4 rounded-2xl text-[#F3EBD9]">
-                        <input type="checkbox" checked={isNationalHoliday} onChange={(e) => setIsNationalHoliday(e.target.checked)} className="w-6 h-6 border-2 border-[#F3EBD9]" />
+                    <label className="flex items-center gap-3 font-black uppercase text-sm cursor-pointer bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
+                        <input type="checkbox" checked={isNationalHoliday} onChange={(e) => setIsNationalHoliday(e.target.checked)} className="w-6 h-6 border-2 border-[var(--theme-surface)]" />
                         Hari Libur Nasional
                     </label>
                 )}
 
                 {/* Total Lembur */}
-                <div className="text-sm font-black uppercase bg-[#111111] p-4 rounded-2xl text-[#F3EBD9]">
-                    Total Lembur: <span className="text-[#E43427]">{calculateOvertime()} Jam</span>
+                <div className="text-sm font-black uppercase bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
+                    Total Lembur: <span className="text-[var(--theme-accent)]">{calculateOvertime()} Jam</span>
                 </div>
 
                 {selectedEmployeeData && (
-                    <div className="bg-[#111111] rounded-[28px] p-5 text-[#F3EBD9] shadow-[5px_5px_0px_#000000] mt-5">
+                    <div className="bg-[var(--theme-primary)] rounded-[28px] p-5 text-[var(--theme-surface)] shadow-[5px_5px_0px_var(--theme-primary)] mt-5 transition-colors duration-300">
                         <div className="text-[11px] uppercase tracking-[0.12em] font-black opacity-70 mb-3">
                             Payroll Rule
                         </div>
@@ -135,7 +135,7 @@ export default function EditAttendanceModal({ attendance, employees, onClose, re
                 )}
             </div>
 
-            <button onClick={saveAttendance} disabled={loading} className="w-full mt-7 bg-[#E43427] text-[#F3EBD9] py-4 rounded-2xl font-black uppercase tracking-widest shadow-[4px_4px_0px_#111111] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all">
+            <button onClick={saveAttendance} disabled={loading} className="w-full mt-7 bg-[var(--theme-accent)] hover:brightness-90 text-[var(--theme-surface)] py-4 rounded-2xl font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300">
                 {loading ? 'Menyimpan...' : 'Simpan Attendance'}
             </button>
             </div>

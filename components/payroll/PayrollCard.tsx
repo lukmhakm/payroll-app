@@ -18,7 +18,7 @@ export default function PayrollCard({ employee, payroll, adjustment, isFinalized
     const [isExpanded, setIsExpanded] = useState(false)
 
     return (
-        <div className="border-4 border-[#111111] shadow-[8px_8px_0px_#111111] flex flex-col mb-6 overflow-hidden rounded-3xl bg-gray-950">
+        <div className="border-4 border-[var(--theme-primary)] shadow-[8px_8px_0px_var(--theme-primary)] flex flex-col mb-6 overflow-hidden rounded-3xl bg-[var(--theme-primary)] transition-colors duration-300">
             <PayrollCardHeader 
                 employee={employee} 
                 totalSalary={payroll.finalSalary} 

@@ -19,7 +19,7 @@ Komponen pembungkus (*wrapper*) untuk UI kartu gaji masing-masing karyawan.
 
 ## 3. PayrollCardHeader.tsx (The Header UI)
 Komponen yang menampilkan ringkasan informasi di bagian atas kartu yang selalu terlihat.
-- Menampilkan nama karyawan, jabatan (*badge* hitam brutalist), dan tipe pekerjaan (Freelance/Tetap).
+- Menampilkan nama karyawan, jabatan (*badge* hitam brutalist), dan tipe pekerjaan (Freelance/Fulltime/Contract).
 - Menampilkan Total Gaji Akhir (*Final Salary*) dengan tipografi yang tebal (*bold*).
 - Memiliki tombol interaktif panah ke bawah (dropdown) yang akan memutar animasinya sebesar 180 derajat ketika di-klik.
 

@@ -12,14 +12,16 @@ import EmployeeCard from '@/components/employee/EmployeeCard'
 import SalarySlipCard from '@/components/payroll/SalarySlipCard'
 import SettingsModal from '@/components/settings/SettingModal'
 import { useTheme } from '@/providers/ThemeProvider'
+import { useSettings } from '@/providers/SettingsProvider'
 import { useEmployees } from '@/hooks/useEmployees'
 import { useAttendances } from '@/hooks/useAttendances'
 import { usePayrollHistories } from '@/hooks/usePayrollHistories'
 import { usePayrollAdjustments } from '@/hooks/usePayrollAdjustments'
+import type { PayrollHistory } from '@/types'
 
 export default function Home() {
 
-  const { employees, fetchEmployees, addEmployee, deleteEmployee, formState: empForm } = useEmployees()
+  const { employees, fetchEmployees, addEmployee, deleteEmployee } = useEmployees()
   const { attendances, fetchAttendances } = useAttendances()
   const { payrollHistories, fetchPayrollHistories } = usePayrollHistories()
 
@@ -27,7 +29,7 @@ export default function Home() {
     useState<any>(null)
 
   const [selectedHistory, setSelectedHistory] =
-    useState<any>(null)
+    useState<PayrollHistory | null>(null)
 
   const [selectedMonth, setSelectedMonth] =
     useState(
@@ -39,10 +41,8 @@ export default function Home() {
   const [showSettings, setShowSettings] =
     useState(false)
 
-  const [companyName, setCompanyName] =
-    useState('GAJYUN')
-
   const { theme } = useTheme()
+  const { settings } = useSettings()
 
   const [mounted, setMounted] =
     useState(false)
@@ -54,13 +54,6 @@ export default function Home() {
     fetchEmployees()
     fetchAttendances()
     fetchPayrollHistories()
-
-    const savedCompany =
-      localStorage.getItem('company_name')
-
-    if (savedCompany) {
-      setCompanyName(savedCompany.toUpperCase())
-    }
 
   }, [fetchEmployees, fetchAttendances, fetchPayrollHistories])
 
@@ -77,8 +70,8 @@ export default function Home() {
       }}
     >
 
-      {/* Red Ambient Glow - Efek lampu merah redup dari atas ala interior mobil */}
-      <div className="fixed top-[-10%] left-1/2 -translate-x-1/2 w-[800px] sm:w-[1000px] h-[500px] sm:h-[600px] bg-red-600/[0.06] blur-[100px] rounded-full pointer-events-none" />
+      {/* Ambient Glow - Efek lampu redup dari atas ala interior mobil */}
+      <div className="fixed top-[-10%] left-1/2 -translate-x-1/2 w-[800px] sm:w-[1000px] h-[500px] sm:h-[600px] bg-[var(--theme-accent)] opacity-[0.06] blur-[100px] rounded-full pointer-events-none transition-colors duration-500" />
 
       <div className="max-w-6xl mx-auto px-5 sm:px-8 pt-8 lg:pt-12 relative z-10">
 
@@ -89,7 +82,7 @@ export default function Home() {
               className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter uppercase mb-2 transition-colors break-words"
               style={{ color: theme.accent }}
             >
-              {companyName}
+            {settings.companyName.toUpperCase()}
             </h1>
             <p
               className="text-xs sm:text-sm md:text-base font-bold uppercase tracking-widest max-w-xl"
@@ -227,25 +220,11 @@ export default function Home() {
 
             {/* Kolom Kanan: Area Karyawan */}
             <div className="flex flex-col gap-8">
-              <EmployeeForm
-                name={empForm.name} setName={empForm.setName}
-                position={empForm.position} setPosition={empForm.setPosition}
-                salary={empForm.salary} setSalary={empForm.setSalary}
-                overtimeRate={empForm.overtimeRate} setOvertimeRate={empForm.setOvertimeRate}
-                deduction={empForm.deduction} setDeduction={empForm.setDeduction}
-                bankName={empForm.bankName} setBankName={empForm.setBankName}
-                bankAccountNumber={empForm.bankAccountNumber} setBankAccountNumber={empForm.setBankAccountNumber}
-                bankAccountName={empForm.bankAccountName} setBankAccountName={empForm.setBankAccountName}
-                email={empForm.email} setEmail={empForm.setEmail}
-                payrollStartDay={empForm.payrollStartDay} setPayrollStartDay={empForm.setPayrollStartDay}
-                employmentType={empForm.employmentType} setEmploymentType={empForm.setEmploymentType}
-                addEmployee={addEmployee}
-              />
+              <EmployeeForm addEmployee={addEmployee} />
 
               <div className="space-y-4">
                 <h3
-                  className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none px-1 mb-4 transition-colors"
-                  style={{ color: theme.accent }}
+                  className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none px-1 mb-4 transition-colors duration-300 text-[var(--theme-accent)]"
                 >
                   TEAM DIRECTORY
                 </h3>
@@ -295,7 +274,7 @@ export default function Home() {
           position: selectedHistory.employee_position,
           bank_name: selectedHistory.bank_name,
           bank_account_number: selectedHistory.bank_account_number,
-          employment_type: 'tetap' // Fallback
+          employment_type: 'fulltime' // Fallback
         }
 
         // Re-kalkulasi jumlah hari hadir khusus untuk freelancer dari database history

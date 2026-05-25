@@ -24,7 +24,7 @@ Design language:
 
 Supports 3 employee types:
 
-### 1. Karyawan Tetap
+### 1. Fulltime
 
 - Monthly salary
 - Payroll period usually starts on day 1
@@ -34,7 +34,7 @@ Supports 3 employee types:
 
 ---
 
-### 2. Karyawan Tidak Tetap
+### 2. Contract
 
 - Monthly salary
 - Payroll period can start on custom day
@@ -420,7 +420,7 @@ No deduction logic.
 
 ---
 
-## Tetap / Tidak Tetap
+## Fulltime / Contract
 
 ```text
 monthlySalary
@@ -446,6 +446,11 @@ monthlySalary
 - dynamic footer system
 - settings modal system
 - palette system
+- migrated `any` types to strict TypeScript interfaces
+- extracted payroll calculation logic to centralized `lib/payrollEngine.ts` (Logic ≠ Visual)
+- eliminated prop-drilling in `app/page.tsx` by isolating form states
+- normalized legacy employment type data (`tetap` -> `fulltime`)
+- centralized global settings via `SettingsProvider` (Point 4)
 
 ---
 
@@ -455,9 +460,6 @@ monthlySalary
 
 ### High Priority
 
-- ThemeProvider system
-- Watermark rendering
-- Confidential toggle rendering
 - Auto payroll generator
 - Payroll status system
 - Global dynamic colors
@@ -546,6 +548,7 @@ Current status:
 ```text
 Production-style payroll dashboard
 with scalable architecture foundation.
+TypeScript type-safety and centralized calculation engine applied.
 ```
 
 The project already includes:

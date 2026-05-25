@@ -2,10 +2,11 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import type { Employee, Attendance } from '@/types'
 
 type Props = {
-    employees: any[]
-    attendances: any[]
+    employees: Employee[]
+    attendances: Attendance[]
     refreshAttendances: () => void
 }
 
@@ -83,13 +84,13 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
     }
 
     return (
-        <div className="bg-[#15438D] border-4 border-[#111111] rounded-[2rem] p-8 shadow-[8px_8px_0px_#111111] text-[#F3EBD9] mt-8">
+        <div className="bg-[var(--theme-highlight)] border-4 border-[var(--theme-primary)] rounded-[2rem] p-8 shadow-[8px_8px_0px_var(--theme-primary)] text-[var(--theme-surface)] mt-8 transition-colors duration-300">
             <h2 className="text-2xl font-black uppercase tracking-widest mb-6">Input Attendance</h2>
 
             <div className="space-y-4">
                 {/* Karyawan */}
                 <div className="relative z-50">
-                    <details className="w-full bg-[#F3EBD9] rounded-2xl text-[#111111] shadow-[4px_4px_0px_#111111] outline-none group border-2 border-black transition-all">
+                    <details className="w-full bg-[var(--theme-surface)] rounded-2xl text-[var(--theme-primary)] shadow-[4px_4px_0px_var(--theme-primary)] outline-none group border-2 border-[var(--theme-primary)] transition-all duration-300">
                         <summary className="px-5 py-4 cursor-pointer list-none flex justify-between items-center font-black">
                             <span>
                                 {selectedEmployees.length === 0 
@@ -100,28 +101,28 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                                 ▼
                             </span>
                         </summary>
-                        <div className="absolute left-0 right-0 top-full mt-2 bg-white border-2 border-black rounded-2xl shadow-[4px_4px_0px_#111111] overflow-hidden">
+                        <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--theme-surface)] brightness-110 border-2 border-[var(--theme-primary)] rounded-2xl shadow-[4px_4px_0px_var(--theme-primary)] overflow-hidden">
                             <div className="max-h-[240px] overflow-y-auto p-2 space-y-1">
-                                <label className="flex items-center gap-3 p-3 hover:bg-[#F3EBD9] rounded-xl cursor-pointer transition-colors border-b-2 border-dashed border-black/20">
+                                <label className="flex items-center gap-3 p-3 hover:brightness-95 rounded-xl cursor-pointer transition-colors border-b-2 border-dashed border-[var(--theme-primary)] border-opacity-20">
                                     <input 
                                         type="checkbox" 
                                         checked={employees.length > 0 && selectedEmployees.length === employees.length} 
                                         onChange={toggleAllEmployees} 
-                                        className="w-5 h-5 accent-[#E43427] cursor-pointer" 
+                                        className="w-5 h-5 accent-[var(--theme-accent)] cursor-pointer" 
                                     />
                                     <span className="font-black uppercase tracking-wider text-sm">Pilih Semua</span>
                                 </label>
                                 {employees.map((employee) => (
-                                    <label key={employee.id} className="flex items-center gap-3 p-3 hover:bg-[#F3EBD9] rounded-xl cursor-pointer transition-colors">
+                                    <label key={employee.id} className="flex items-center gap-3 p-3 hover:brightness-95 rounded-xl cursor-pointer transition-colors">
                                         <input 
                                             type="checkbox" 
                                             checked={selectedEmployees.includes(employee.id)} 
                                             onChange={() => toggleEmployee(employee.id)} 
-                                            className="w-5 h-5 accent-[#E43427] cursor-pointer" 
+                                            className="w-5 h-5 accent-[var(--theme-accent)] cursor-pointer" 
                                         />
                                         <div className="flex flex-col">
                                             <span className="font-black uppercase tracking-wider text-sm leading-none mb-1">{employee.name}</span>
-                                            <span className="text-[10px] uppercase tracking-widest text-[#15438D] font-black">{employee.employment_type?.replace('_', ' ')}</span>
+                                            <span className="text-[10px] uppercase tracking-widest text-[var(--theme-highlight)] font-black">{employee.employment_type?.replace('_', ' ')}</span>
                                         </div>
                                     </label>
                                 ))}
@@ -136,18 +137,18 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                         type="date" 
                         value={date} 
                         onChange={(e) => setDate(e.target.value)} 
-                        className="w-full bg-[#F3EBD9] border-2 border-black rounded-2xl px-5 py-4 text-[#111111] font-black shadow-[4px_4px_0px_#111111] outline-none transition-all" 
+                        className="w-full bg-[var(--theme-surface)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-all duration-300" 
                     />
                     {recentDates.length > 0 && (
                         <div className="flex flex-col gap-2 mt-2">
-                            <span className="text-[10px] font-black uppercase tracking-widest text-[#F3EBD9]/70">Riwayat Terakhir:</span>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-[var(--theme-surface)] opacity-70">Riwayat Terakhir:</span>
                             <div className="grid grid-cols-2 gap-2">
                                 {recentDates.map(d => (
                                     <button
                                         key={d}
                                         type="button"
                                         onClick={() => setDate(d)}
-                                        className={`px-3 py-2 text-[11px] font-black rounded-xl border-2 border-[#111111] uppercase tracking-wider transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${date === d ? 'bg-[#111111] text-[#F3EBD9] shadow-none translate-x-[2px] translate-y-[2px]' : 'bg-[#F3EBD9] text-[#111111] shadow-[2px_2px_0px_#111111]'}`}
+                                        className={`px-3 py-2 text-[11px] font-black rounded-xl border-2 border-[var(--theme-primary)] uppercase tracking-wider transition-all duration-300 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${date === d ? 'bg-[var(--theme-primary)] text-[var(--theme-surface)] shadow-none translate-x-[2px] translate-y-[2px]' : 'bg-[var(--theme-surface)] text-[var(--theme-primary)] shadow-[2px_2px_0px_var(--theme-primary)]'}`}
                                     >
                                         {d}
                                     </button>
@@ -156,24 +157,24 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                         </div>
                     )}
                     {attendancesOnSelectedDate.length > 0 && (
-                        <div className="px-4 py-3 bg-white border-2 border-black rounded-xl text-xs font-black text-[#111111] shadow-[2px_2px_0px_rgba(0,0,0,1)]">
-                            <span className="text-[#15438D]">💡 Info:</span> Sudah ada {attendancesOnSelectedDate.length} data absensi pada tanggal ini.
+                        <div className="px-4 py-3 bg-[var(--theme-surface)] brightness-110 border-2 border-[var(--theme-primary)] rounded-xl text-xs font-black text-[var(--theme-primary)] shadow-[2px_2px_0px_var(--theme-primary)]">
+                            <span className="text-[var(--theme-highlight)]">💡 Info:</span> Sudah ada {attendancesOnSelectedDate.length} data absensi pada tanggal ini.
                             {alreadyInputtedSelectedEmployees.length > 0 && (
-                                <div className="text-[#E43427] mt-1">⚠️ Peringatan: {alreadyInputtedSelectedEmployees.length} karyawan yang dipilih sudah diabsen!</div>
+                                <div className="text-[var(--theme-accent)] mt-1">⚠️ Peringatan: {alreadyInputtedSelectedEmployees.length} karyawan yang dipilih sudah diabsen!</div>
                             )}
                         </div>
                     )}
                 </div>
 
                 {/* Jam Masuk */}
-                <div className="flex gap-3 items-center bg-[#F3EBD9] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_#111111]">
-                    <span className="font-black text-[11px] uppercase tracking-[0.08em] text-[#15438D]">Masuk:</span>
-                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 bg-transparent text-[#111111] text-lg font-black outline-none" />
+                <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
+                    <span className="font-black text-[11px] uppercase tracking-[0.08em] text-[var(--theme-highlight)]">Masuk:</span>
+                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] text-lg font-black outline-none" />
                 </div>
 
                 {/* Status */}
                 <div className="relative z-40">
-                    <details className="w-full bg-[#F3EBD9] rounded-2xl text-[#111111] shadow-[4px_4px_0px_#111111] outline-none group border-2 border-black transition-all">
+                    <details className="w-full bg-[var(--theme-surface)] rounded-2xl text-[var(--theme-primary)] shadow-[4px_4px_0px_var(--theme-primary)] outline-none group border-2 border-[var(--theme-primary)] transition-all duration-300">
                         <summary className="px-5 py-4 cursor-pointer list-none flex justify-between items-center font-black">
                             <span className="uppercase">
                                 {status}
@@ -182,7 +183,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                                 ▼
                             </span>
                         </summary>
-                        <div className="absolute left-0 right-0 top-full mt-2 bg-white border-2 border-black rounded-2xl shadow-[4px_4px_0px_#111111] overflow-hidden">
+                        <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--theme-surface)] brightness-110 border-2 border-[var(--theme-primary)] rounded-2xl shadow-[4px_4px_0px_var(--theme-primary)] overflow-hidden">
                             <div className="max-h-[240px] overflow-y-auto p-2 space-y-1">
                                 {['hadir', 'sakit', 'izin', 'alpha', 'libur'].map((s) => (
                                     <div 
@@ -191,7 +192,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                                             setStatus(s);
                                             e.currentTarget.closest('details')?.removeAttribute('open');
                                         }} 
-                                        className="flex items-center gap-3 p-3 hover:bg-[#F3EBD9] rounded-xl cursor-pointer transition-colors"
+                                        className="flex items-center gap-3 p-3 hover:brightness-95 rounded-xl cursor-pointer transition-colors"
                                     >
                                         <span className="font-black uppercase tracking-wider text-sm">{s}</span>
                                     </div>
@@ -203,27 +204,27 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
 
                 {/* Jam Keluar (Muncul kalau Hadir) */}
                 {status === 'hadir' && (
-                    <div className="flex gap-3 items-center bg-[#F3EBD9] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_#111111]">
-                        <span className="font-black text-[11px] uppercase tracking-[0.08em] text-[#15438D]">Keluar:</span>
-                        <input type="time" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="flex-1 bg-transparent text-[#111111] text-lg font-black outline-none" />
+                    <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
+                        <span className="font-black text-[11px] uppercase tracking-[0.08em] text-[var(--theme-highlight)]">Keluar:</span>
+                        <input type="time" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] text-lg font-black outline-none" />
                     </div>
                 )}
 
                 {/* Checklist Libur */}
                 {status === 'hadir' && (
-                    <label className="flex items-center gap-3 font-black uppercase text-sm cursor-pointer bg-[#111111] p-4 rounded-2xl text-[#F3EBD9]">
-                        <input type="checkbox" checked={isNationalHoliday} onChange={(e) => setIsNationalHoliday(e.target.checked)} className="w-6 h-6 border-2 border-[#111111]" />
+                    <label className="flex items-center gap-3 font-black uppercase text-sm cursor-pointer bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
+                        <input type="checkbox" checked={isNationalHoliday} onChange={(e) => setIsNationalHoliday(e.target.checked)} className="w-6 h-6 border-2 border-[var(--theme-primary)]" />
                         Hari Libur Nasional
                     </label>
                 )}
 
                 {/* Total Lembur */}
-                <div className="text-sm font-black uppercase bg-[#111111] p-4 rounded-2xl text-[#F3EBD9]">
-                    Total Lembur: <span className="text-[#E43427]">{calculateOvertime()} Jam</span>
+                <div className="text-sm font-black uppercase bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
+                    Total Lembur: <span className="text-[var(--theme-accent)]">{calculateOvertime()} Jam</span>
                 </div>
 
                 {selectedEmployeesData.length > 0 && (
-                    <div className="bg-[#111111] rounded-[28px] p-5 text-[#F3EBD9] shadow-[5px_5px_0px_#000000]">
+                    <div className="bg-[var(--theme-primary)] rounded-[28px] p-5 text-[var(--theme-surface)] shadow-[5px_5px_0px_var(--theme-primary)] transition-colors duration-300">
                         <div className="text-[11px] uppercase tracking-[0.12em] font-black opacity-70 mb-3">
                             Payroll Rule
                         </div>
@@ -236,7 +237,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                     </div>
                 )}
 
-                <button onClick={saveAttendance} disabled={loading} className="w-full mt-7 bg-[#E43427] text-[#F3EBD9] py-4 rounded-2xl font-black uppercase tracking-widest shadow-[4px_4px_0px_#111111] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all">
+                <button onClick={saveAttendance} disabled={loading} className="w-full mt-7 bg-[var(--theme-accent)] hover:brightness-90 text-[var(--theme-surface)] py-4 rounded-2xl font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300">
                     {loading ? 'Menyimpan...' : 'Simpan Attendance'}
                 </button>
             </div>
