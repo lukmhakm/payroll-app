@@ -174,12 +174,33 @@ export default function SalarySlipCard({
         }
     }
 
+    const totalDeduction = Number(payroll.deduction || 0)
+    const dailyDed = Number(employee.daily_deduction || 0)
+    let absenceDed = 0
+    let extraAdj = 0
+    let absentDays = 0
+
+    if (payroll.absenceDeduction !== undefined && payroll.extraAdjustment !== undefined) {
+        absenceDed = Number(payroll.absenceDeduction)
+        extraAdj = Number(payroll.extraAdjustment)
+        absentDays = dailyDed > 0 ? Math.floor(absenceDed / dailyDed) : 0
+    } else {
+        if (employee.employment_type !== 'freelance' && dailyDed > 0) {
+            absentDays = Math.floor(totalDeduction / dailyDed)
+            absenceDed = absentDays * dailyDed
+            const leftoverDed = totalDeduction - absenceDed
+            extraAdj = leftoverDed > 0 ? -leftoverDed : 0
+        } else {
+            extraAdj = totalDeduction > 0 ? -totalDeduction : 0
+        }
+    }
+
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
+            className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-2 sm:p-6 backdrop-blur-md animate-in fade-in duration-200 overflow-y-auto"
             style={{ backgroundColor: `${theme.primary}CC` }}
         >
-            <div className="w-full max-w-md my-auto flex flex-col gap-6 pt-10 pb-10">
+            <div className="w-full max-w-md my-auto flex flex-col gap-4 sm:gap-6 pt-4 sm:pt-10 pb-10">
 
                 {/* TOOLBAR — TIDAK IKUT CAPTURE PNG/PDF */}
                 <div className="flex justify-end mb-2">
@@ -204,8 +225,8 @@ export default function SalarySlipCard({
                     style={{
                         backgroundColor: theme.surface, // Warm Cream
                         border: `4px solid ${theme.primary}`, // Ink Black
-                        borderRadius: '24px',
-                        padding: '32px',
+                        borderRadius: '16px',
+                        padding: '20px',
                         color: theme.primary,
                         fontFamily: 'system-ui, -apple-system, sans-serif',
                         width: '100%',
@@ -239,14 +260,19 @@ export default function SalarySlipCard({
                         </div>
                     )}
                     {/* Header Slip */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', position: 'relative', zIndex: 2 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', position: 'relative', zIndex: 2 }}>
                         <div>
-                            <div style={{ fontSize: '32px', fontWeight: '900', letterSpacing: '-1px', color: theme.accent, textTransform: 'uppercase', lineHeight: '1' }}>
+                            <div style={{ fontSize: '24px', fontWeight: '900', letterSpacing: '-1px', color: theme.accent, textTransform: 'uppercase', lineHeight: '1' }}>
                                 SALARY SLIP
                             </div>
-                            <div style={{ color: theme.primary, fontSize: '14px', marginTop: '6px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                            <div style={{ color: theme.primary, fontSize: '12px', marginTop: '6px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>
                                 PERIODE: {getMonthLabel()}
                             </div>
+                            {payroll.periodStart && payroll.periodEnd && (
+                                <div style={{ color: theme.primary, fontSize: '10px', marginTop: '4px', fontWeight: '700', opacity: 0.8 }}>
+                                    ({payroll.periodStart} s/d {payroll.periodEnd})
+                                </div>
+                            )}
                         </div>
                         {confidentialEnabled && (
                         <div style={{ 
@@ -270,23 +296,23 @@ export default function SalarySlipCard({
                         position: 'relative',
                         zIndex: 2,
                         backgroundColor: theme.highlight, 
-                        border: `4px solid ${theme.primary}`, 
-                        borderRadius: '16px', 
-                        padding: '24px', 
-                        marginBottom: '32px',
-                        boxShadow: `4px 4px 0px ${theme.primary}`,
+                        border: `3px solid ${theme.primary}`, 
+                        borderRadius: '12px', 
+                        padding: '16px', 
+                        marginBottom: '24px',
+                        boxShadow: `3px 3px 0px ${theme.primary}`,
                         color: theme.surface
                     }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
-                                <div style={{ fontSize: '24px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '-0.5px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                <div style={{ fontSize: '20px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
                                     {employee.name}
                                 </div>
                                 <span style={{ 
                                     backgroundColor: theme.primary, 
                                     color: theme.surface, 
                                     padding: '4px 8px', 
-                                    borderRadius: '6px', 
+                                    borderRadius: '4px', 
                                     fontSize: '11px', 
                                     fontWeight: '800', 
                                     textTransform: 'uppercase',
@@ -295,54 +321,98 @@ export default function SalarySlipCard({
                                     {employee.position}
                                 </span>
                             </div>
-                            <div style={{ textAlign: 'right' }}>
-                                <div style={{ color: theme.surface, fontSize: '11px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px', opacity: 0.8 }}>Bank Account</div>
-                                <div style={{ fontWeight: '900', fontSize: '16px', textTransform: 'uppercase' }}>{employee.bank_name || '-'}</div>
-                                <div style={{ fontWeight: '600', fontSize: '14px', marginTop: '2px' }}>{employee.bank_account_number || '-'}</div>
+                            <div style={{ textAlign: 'left', borderTop: `2px dashed ${theme.surface}66`, paddingTop: '12px' }}>
+                                <div style={{ color: theme.surface, fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px', opacity: 0.9 }}>Bank Account</div>
+                                <div style={{ fontWeight: '900', fontSize: '14px', textTransform: 'uppercase' }}>{employee.bank_name || '-'}</div>
+                                <div style={{ fontWeight: '700', fontSize: '13px', marginTop: '2px', letterSpacing: '1px' }}>{employee.bank_account_number || '-'}</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Payroll Details */}
-                    <div style={{ marginBottom: '32px', position: 'relative', zIndex: 2 }}>
-                        <div style={{ fontSize: '14px', fontWeight: '900', color: theme.primary, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px', borderBottom: `4px solid ${theme.primary}`, paddingBottom: '8px' }}>
+                    <div style={{ marginBottom: '24px', position: 'relative', zIndex: 2 }}>
+                        <div style={{ fontSize: '12px', fontWeight: '900', color: theme.primary, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px', borderBottom: `3px solid ${theme.primary}`, paddingBottom: '8px' }}>
                             Rincian Pendapatan & Potongan
                         </div>
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: '700' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
                                 <div>
                                     {employee.employment_type === 'freelance'
-                                        ? `Daily Salary • ${payroll.hadirCount || 0} Hari Kerja`
+                                        ? `Daily Salary • ${payroll.attendanceCount || payroll.hadirCount || 0} Hari Kerja`
                                         : 'Gaji Pokok'}
                                 </div>
 
                                 <div style={{ fontWeight: '900' }}>
                                     {employee.employment_type === 'freelance'
-                                        ? `Rp ${Math.round((payroll.hadirCount || 0) * Number(employee.baseSalary || payroll.baseSalary || 0)).toLocaleString()}`
+                                        ? `Rp ${Math.round((payroll.attendanceCount || payroll.hadirCount || 0) * Number(employee.base_salary || 0)).toLocaleString()}`
                                         : `Rp ${Math.round(payroll.baseSalary || 0).toLocaleString()}`}
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: '700' }}>
-                                <div>Total Lembur</div>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                    <div>Total Lembur</div>
+                                    {Number(payroll.overtimeHours || 0) > 0 && (
+                                        <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>
+                                            ({payroll.overtimeDays} Kali • {payroll.overtimeHours} Jam)
+                                        </div>
+                                    )}
+                                </div>
                                 <div style={{ fontWeight: '900', color: theme.highlight }}>
-                                    + Rp {Math.round(payroll.totalOvertimePay || 0).toLocaleString()}
+                                    + Rp {Math.round(payroll.totalOvertimePay || payroll.overtime || 0).toLocaleString()}
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: '700' }}>
-                                <div>Bonus Tambahan</div>
-                                <div style={{ fontWeight: '900', color: theme.highlight }}>
-                                    + Rp {Math.round(payroll.bonus || 0).toLocaleString()}
+                            {Number(payroll.bonus || 0) > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
+                                    <div>Bonus Tambahan</div>
+                                    <div style={{ fontWeight: '900', color: theme.highlight }}>
+                                        + Rp {Math.round(payroll.bonus || 0).toLocaleString()}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
-                            {employee.employment_type !== 'freelance' && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '15px', fontWeight: '700' }}>
-                                    <div>Potongan (Absen, dll)</div>
+                            {absenceDed > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <div>Potongan Absen</div>
+                                        {absentDays > 0 && (
+                                            <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>
+                                                ({absentDays} Hari)
+                                            </div>
+                                        )}
+                                    </div>
                                     <div style={{ fontWeight: '900', color: theme.accent }}>
-                                        - Rp {Math.round(payroll.deduction || 0).toLocaleString()}
+                                        - Rp {Math.round(absenceDed).toLocaleString()}
+                                    </div>
+                                </div>
+                            )}
+
+                            {extraAdj > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <div>Extra</div>
+                                        <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>
+                                            (THR/Bonus)
+                                        </div>
+                                    </div>
+                                    <div style={{ fontWeight: '900', color: theme.highlight }}>
+                                        + Rp {Math.round(extraAdj).toLocaleString()}
+                                    </div>
+                                </div>
+                            )}
+
+                            {extraAdj < 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <div>Extra</div>
+                                        <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>
+                                            (Kasbon/Lainnya)
+                                        </div>
+                                    </div>
+                                    <div style={{ fontWeight: '900', color: theme.accent }}>
+                                        - Rp {Math.round(Math.abs(extraAdj)).toLocaleString()}
                                     </div>
                                 </div>
                             )}
@@ -352,13 +422,13 @@ export default function SalarySlipCard({
                     <div style={{ height: '4px', backgroundColor: theme.primary, marginBottom: '24px', width: '100%' }}></div>
 
                     {/* Final Take Home Pay */}
-                    <div style={{ marginBottom: '32px', position: 'relative', zIndex: 2 }}>
-                        <div style={{ color: theme.primary, fontSize: '14px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
+                    <div style={{ marginBottom: '24px', position: 'relative', zIndex: 2 }}>
+                        <div style={{ color: theme.primary, fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
                             Take Home Pay
                         </div>
                         <div style={{ textAlign: 'right' }}>
                             <div style={{ 
-                                fontSize: '42px', 
+                                fontSize: '36px', 
                                 fontWeight: '900', 
                                 color: theme.accent, 
                                 lineHeight: '1', 

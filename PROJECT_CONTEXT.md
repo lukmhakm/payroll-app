@@ -1,5 +1,3 @@
-
-
 # PAYROLL APP — PROJECT CONTEXT
 
 ## PROJECT OVERVIEW
@@ -67,17 +65,28 @@ attendanceCount × dailySalary + overtime
 ```text
 app/page.tsx
 │
-├── EmployeeForm.tsx
-├── EmployeeCard.tsx
-├── AttendanceForm.tsx
-├── AttendanceList.tsx
+├── components/employee/
+│     ├── EmployeeForm.tsx
+│     └── EmployeeCard.tsx
+├── components/attendance/
+│     ├── AttendanceForm.tsx
+│     ├── AttendanceList.tsx
 │     └── EditAttendanceModal.tsx
-├── PayrollAnalytics.tsx
-├── PayrollSummary.tsx
-│     └── PayrollSlipModal.tsx
-│            └── SalarySlipCard.tsx
-├── PayrollHistory.tsx
-└── SettingModal.tsx
+├── components/analytics/
+│     └── PayrollAnalytics.tsx
+├── components/payroll/
+│     ├── PayrollSummary.tsx
+│     ├── PayrollCard.tsx
+│     ├── SalarySlipCard.tsx
+│     └── PayrollHistory.tsx
+└── components/settings/
+      └── SettingModal.tsx
+
+hooks/
+├── useEmployees.ts
+├── useAttendances.ts
+├── usePayrollHistories.ts
+└── usePayrollAdjustments.ts
 ```
 
 ---
@@ -172,6 +181,39 @@ Responsible for:
 - freelance calculation
 - payroll period filtering
 - payroll generation
+
+### Payroll Summary UI Direction
+
+Current visual structure:
+
+```text
+RED HEADER CARD
+├── Employee identity
+├── Final salary focus
+├── Generated status
+└── Expand / collapse interaction
+
+CLEAN DETAIL SECTION
+├── Basic salary
+├── Overtime
+├── Bonus
+└── Deduction
+```
+
+Design principle:
+
+```text
+Top section should carry personality.
+Bottom section should carry clarity.
+```
+
+Current preferred interaction:
+
+- collapsible payroll details
+- mobile-first hierarchy
+- salary as primary focal point
+- simplified detail rows
+- action button visually integrated
 
 ---
 
@@ -291,11 +333,28 @@ Highlight → #15438D
 ## UI STYLE
 
 - heavy borders
-- hard shadows
+- controlled brutalist shadows
 - editorial typography
-- brutalist cards
+- modular payroll cards
 - uppercase labels
 - oversized headings
+- bold color blocking
+- mobile-first dashboard composition
+- collapsible payroll sections
+
+Important direction:
+
+```text
+Header = loud / expressive
+Body = clean / structured
+```
+
+Avoid:
+
+- spreadsheet-looking layouts
+- excessive nested cards
+- overly dense shadows
+- generic SaaS table styling
 
 ---
 
@@ -447,6 +506,35 @@ Always check:
 3. state source
 4. localStorage values
 5. payroll payload consistency
+```
+
+---
+
+# CURRENT DESIGN DECISIONS
+
+## Payroll Summary
+
+Approved direction:
+
+- red identity header
+- large salary typography
+- collapsible details
+- simplified detail rows
+- minimal card nesting
+- reduced shadow intensity
+- clean lower section
+
+Rejected direction:
+
+- boxed stat grids
+- analytics-style detail cards inside payroll summary
+- spreadsheet/table visual style
+- over-layered brutalism
+
+Key insight:
+
+```text
+Too much brutalism removes readability.
 ```
 
 ---

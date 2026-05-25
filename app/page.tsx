@@ -1,31 +1,27 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 
-import PayrollAnalytics from '@/components/PayrollAnalytics'
-import PayrollSummary from '@/components/PayrollSummary'
-import PayrollHistory from '@/components/PayrollHistory'
-import AttendanceList from '@/components/AttendanceList'
-import AttendanceForm from '@/components/AttendanceForm'
-import EmployeeForm from '@/components/EmployeeForm'
-import EmployeeCard from '@/components/EmployeeCard'
-import SalarySlipCard from '@/components/SalarySlipCard'
-import SettingsModal from '@/components/SettingModal'
+import PayrollAnalytics from '@/components/analytics/PayrollAnalytics'
+import PayrollSummary from '@/components/payroll/PayrollSummary'
+import PayrollHistory from '@/components/payroll/PayrollHistory'
+import AttendanceList from '@/components/attendance/AttendanceList'
+import AttendanceForm from '@/components/attendance/AttendanceForm'
+import EmployeeForm from '@/components/employee/EmployeeForm'
+import EmployeeCard from '@/components/employee/EmployeeCard'
+import SalarySlipCard from '@/components/payroll/SalarySlipCard'
+import SettingsModal from '@/components/settings/SettingModal'
 import { useTheme } from '@/providers/ThemeProvider'
+import { useEmployees } from '@/hooks/useEmployees'
+import { useAttendances } from '@/hooks/useAttendances'
+import { usePayrollHistories } from '@/hooks/usePayrollHistories'
+import { usePayrollAdjustments } from '@/hooks/usePayrollAdjustments'
 
 export default function Home() {
 
-  const [employees, setEmployees] =
-    useState<any[]>([])
-
-  const [employmentType, setEmploymentType] = useState('tetap')
-
-  const [attendances, setAttendances] =
-    useState<any[]>([])
-
-  const [payrollHistories, setPayrollHistories] =
-    useState<any[]>([])
+  const { employees, fetchEmployees, addEmployee, deleteEmployee, formState: empForm } = useEmployees()
+  const { attendances, fetchAttendances } = useAttendances()
+  const { payrollHistories, fetchPayrollHistories } = usePayrollHistories()
 
   const [selectedPayroll, setSelectedPayroll] =
     useState<any>(null)
@@ -38,41 +34,13 @@ export default function Home() {
       new Date().toISOString().slice(0, 7)
     )
 
+  const { adjustments, handleUpdateAdjustment, clearAdjustments } = usePayrollAdjustments(selectedMonth)
+
   const [showSettings, setShowSettings] =
     useState(false)
 
   const [companyName, setCompanyName] =
     useState('GAJYUN')
-
-  const [name, setName] =
-    useState('')
-
-  const [position, setPosition] =
-    useState('')
-
-  const [salary, setSalary] =
-    useState('')
-
-  const [overtimeRate, setOvertimeRate] =
-    useState('')
-
-  const [deduction, setDeduction] =
-    useState('')
-
-  const [bankName, setBankName] =
-    useState('')
-
-  const [bankAccountNumber, setBankAccountNumber] =
-    useState('')
-
-  const [bankAccountName, setBankAccountName] =
-    useState('')
-
-  const [email, setEmail] =
-    useState('')
-
-  const [payrollStartDay, setPayrollStartDay] =
-    useState('1')
 
   const { theme } = useTheme()
 
@@ -94,125 +62,7 @@ export default function Home() {
       setCompanyName(savedCompany.toUpperCase())
     }
 
-  }, [showSettings])
-
-  async function fetchEmployees() {
-
-    const {
-      data,
-      error,
-    } = await supabase
-      .from('employees')
-      .select('*')
-
-    console.log(
-      'EMPLOYEES:',
-      data
-    )
-
-    console.log(
-      'EMPLOYEE ERROR:',
-      error
-    )
-
-    setEmployees(data || [])
-  }
-
-  async function fetchAttendances() {
-
-    const {
-      data,
-      error,
-    } = await supabase
-      .from('attendance')
-      .select(`
-  *,
-  employees (
-    id,
-    name
-  )
-`)
-      .order('work_date', { ascending: false })
-
-    console.log(
-      'ATTENDANCES:',
-      data
-    )
-
-    console.log(
-      'ATTENDANCE ERROR:',
-      error
-    )
-
-    setAttendances(data || [])
-  }
-
-  async function fetchPayrollHistories() {
-
-    const {
-      data,
-      error,
-    } = await supabase
-      .from('payroll_history')
-      .select('*')
-
-    console.log(
-      'PAYROLL HISTORIES:',
-      data
-    )
-
-    console.log(
-      'PAYROLL HISTORY ERROR:',
-      error
-    )
-
-    setPayrollHistories(data || [])
-  }
-
-  async function addEmployee() {
-
-    if (!name) return
-
-    await supabase
-      .from('employees')
-      .insert({
-        name,
-        position,
-        employment_type: employmentType,
-        base_salary: Number(salary),
-        overtime_rate: Number(overtimeRate),
-        daily_deduction: Number(deduction),
-        bank_name: bankName,
-        bank_account_number: bankAccountNumber,
-        bank_account_name: bankAccountName,
-        email,
-        payroll_start_day: Number(payrollStartDay),
-      })
-
-    setName('')
-    setPosition('')
-    setSalary('')
-    setOvertimeRate('')
-    setDeduction('')
-    setBankName('')
-    setBankAccountNumber('')
-    setBankAccountName('')
-    setEmail('')
-    setPayrollStartDay('1')
-    setEmploymentType('tetap')
-
-    fetchEmployees()
-  }
-
-  async function deleteEmployee(id: string) {
-
-    await supabase
-      .from('employees')
-      .delete()
-      .eq('id', id)
-
-    fetchEmployees()
-  }
+  }, [fetchEmployees, fetchAttendances, fetchPayrollHistories])
 
   if (!mounted) {
     return null
@@ -233,34 +83,34 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-5 sm:px-8 pt-8 lg:pt-12 relative z-10">
 
         {/* Header Section */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 relative z-10">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8 md:mb-12 relative z-10">
           <div>
             <h1
-              className="text-5xl md:text-6xl font-black tracking-tighter uppercase mb-2 transition-colors"
+              className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tighter uppercase mb-2 transition-colors break-words"
               style={{ color: theme.accent }}
             >
               {companyName}
             </h1>
             <p
-              className="text-sm md:text-base font-bold uppercase tracking-widest max-w-xl"
+              className="text-xs sm:text-sm md:text-base font-bold uppercase tracking-widest max-w-xl"
               style={{ color: theme.primary }}
             >
               Manage payroll, track attendance, and overview your team.
             </p>
           </div>
 
-          <div className="flex items-center gap-4 flex-wrap justify-end">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full md:w-auto">
             {/* Month Picker bergaya Neo-Brutalism 
               Gue pakai trik "Fake Button" biar bisa diklik di mana aja 
               dan teksnya bisa di-format jadi "MAY 2026"
             */}
-            <div className="relative group w-full md:w-auto mt-4 md:mt-0">
+            <div className="relative group w-full sm:w-auto">
 
               {/* Ini UI Tombol Palsunya yang keliatan sama User */}
               <div
                 className="
                   border-4 rounded-2xl
-                  pl-14 pr-5 py-4 flex items-center justify-between
+                  pl-12 sm:pl-14 pr-4 sm:pr-5 py-3 sm:py-4 flex items-center justify-between
                   text-base font-black uppercase tracking-widest
                   transition-all
                   group-active:translate-y-[4px] group-active:shadow-[2px_2px_0px]
@@ -273,10 +123,10 @@ export default function Home() {
                 }}
               >
                 <div
-                  className="absolute inset-y-0 left-4 flex items-center transition-colors z-10 pointer-events-none"
+                  className="absolute inset-y-0 left-3 sm:left-4 flex items-center transition-colors z-10 pointer-events-none"
                   style={{ color: theme.primary }}
                 >
-                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                 </div>
 
                 {/* Trik format '2026-05' jadi 'MAY 2026' */}
@@ -309,10 +159,9 @@ export default function Home() {
               />
 
             </div>
-          </div>
           <button
             onClick={() => setShowSettings(true)}
-            className="border-4 rounded-2xl px-5 py-4 font-black uppercase tracking-widest text-xs transition-all active:translate-y-[3px] active:shadow-[3px_3px_0px]"
+            className="w-full sm:w-auto border-4 rounded-2xl px-4 sm:px-5 py-3 sm:py-4 font-black uppercase tracking-widest text-xs sm:text-sm transition-all active:translate-y-[3px] active:shadow-[3px_3px_0px] flex items-center justify-center gap-2"
             style={{
               backgroundColor: theme.primary,
               color: theme.surface,
@@ -328,6 +177,7 @@ export default function Home() {
           >
             ⚙ Settings
           </button>
+          </div>
         </header>
 
         {/* Layout Utama: Flex Column dengan jarak (gap) yang lega */}
@@ -338,6 +188,8 @@ export default function Home() {
               employees={employees}
               attendances={attendances}
               selectedMonth={selectedMonth}
+              adjustments={adjustments}
+              payrollHistories={payrollHistories}
             />
           </section>
 
@@ -347,6 +199,11 @@ export default function Home() {
               attendances={attendances}
               selectedMonth={selectedMonth}
               onGenerateSlip={setSelectedPayroll}
+              refreshPayrollHistories={fetchPayrollHistories}
+              adjustments={adjustments}
+              onUpdateAdjustment={handleUpdateAdjustment}
+              onClearAdjustments={clearAdjustments}
+              payrollHistories={payrollHistories}
             />
           </section>
 
@@ -357,29 +214,31 @@ export default function Home() {
             <div className="flex flex-col gap-8">
               <AttendanceForm
                 employees={employees}
+                attendances={attendances}
                 refreshAttendances={fetchAttendances}
               />
               <AttendanceList
                 attendances={attendances}
                 employees={employees}
                 selectedMonth={selectedMonth}
+                refreshAttendances={fetchAttendances}
               />
             </div>
 
             {/* Kolom Kanan: Area Karyawan */}
             <div className="flex flex-col gap-8">
               <EmployeeForm
-                name={name} setName={setName}
-                position={position} setPosition={setPosition}
-                salary={salary} setSalary={setSalary}
-                overtimeRate={overtimeRate} setOvertimeRate={setOvertimeRate}
-                deduction={deduction} setDeduction={setDeduction}
-                bankName={bankName} setBankName={setBankName}
-                bankAccountNumber={bankAccountNumber} setBankAccountNumber={setBankAccountNumber}
-                bankAccountName={bankAccountName} setBankAccountName={setBankAccountName}
-                email={email} setEmail={setEmail}
-                payrollStartDay={payrollStartDay} setPayrollStartDay={setPayrollStartDay}
-                employmentType={employmentType} setEmploymentType={setEmploymentType}
+                name={empForm.name} setName={empForm.setName}
+                position={empForm.position} setPosition={empForm.setPosition}
+                salary={empForm.salary} setSalary={empForm.setSalary}
+                overtimeRate={empForm.overtimeRate} setOvertimeRate={empForm.setOvertimeRate}
+                deduction={empForm.deduction} setDeduction={empForm.setDeduction}
+                bankName={empForm.bankName} setBankName={empForm.setBankName}
+                bankAccountNumber={empForm.bankAccountNumber} setBankAccountNumber={empForm.setBankAccountNumber}
+                bankAccountName={empForm.bankAccountName} setBankAccountName={empForm.setBankAccountName}
+                email={empForm.email} setEmail={empForm.setEmail}
+                payrollStartDay={empForm.payrollStartDay} setPayrollStartDay={empForm.setPayrollStartDay}
+                employmentType={empForm.employmentType} setEmploymentType={empForm.setEmploymentType}
                 addEmployee={addEmployee}
               />
 
@@ -406,6 +265,7 @@ export default function Home() {
           <section>
             <PayrollHistory
               histories={payrollHistories}
+              employees={employees}
               refreshPayrollHistories={fetchPayrollHistories}
               onSelectHistory={setSelectedHistory}
             />
@@ -428,25 +288,39 @@ export default function Home() {
         />
       )}
 
-      {selectedHistory && (
-        <SalarySlipCard
-          employee={{
-            name: selectedHistory.employee_name,
-            position: selectedHistory.employee_position,
-            bank_name: selectedHistory.bank_name,
-            bank_account_number: selectedHistory.bank_account_number,
-          }}
-          payroll={{
-            baseSalary: selectedHistory.base_salary,
-            totalOvertimePay: selectedHistory.overtime_pay,
-            bonus: selectedHistory.bonus,
-            deduction: selectedHistory.deduction,
-            finalSalary: selectedHistory.final_salary,
-          }}
-          month={selectedHistory.payroll_month}
-          onClose={() => setSelectedHistory(null)}
-        />
-      )}
+      {selectedHistory && (() => {
+        // Ambil profil asli agar employment_type terbaca, atau gunakan fallback history
+        const emp = employees.find(e => String(e.id) === String(selectedHistory.employee_id)) || {
+          name: selectedHistory.employee_name,
+          position: selectedHistory.employee_position,
+          bank_name: selectedHistory.bank_name,
+          bank_account_number: selectedHistory.bank_account_number,
+          employment_type: 'tetap' // Fallback
+        }
+
+        // Re-kalkulasi jumlah hari hadir khusus untuk freelancer dari database history
+        let reconstructedAttendanceCount = 0
+        if (emp.employment_type === 'freelance' && emp.base_salary > 0) {
+          const baseTotal = Number(selectedHistory.final_salary || 0) - Number(selectedHistory.overtime_pay || 0) - Number(selectedHistory.bonus || 0) + Number(selectedHistory.deduction || 0)
+          reconstructedAttendanceCount = Math.round(baseTotal / emp.base_salary)
+        }
+
+        return (
+          <SalarySlipCard
+            employee={emp}
+            payroll={{
+              baseSalary: selectedHistory.base_salary,
+              totalOvertimePay: selectedHistory.overtime_pay,
+              bonus: selectedHistory.bonus,
+              deduction: selectedHistory.deduction,
+              finalSalary: selectedHistory.final_salary,
+              attendanceCount: reconstructedAttendanceCount,
+            }}
+            month={selectedHistory.payroll_month}
+            onClose={() => setSelectedHistory(null)}
+          />
+        )
+      })()}
 
     </main>
   )

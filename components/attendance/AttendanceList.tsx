@@ -2,25 +2,27 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
-import EditAttendanceModal from '@/components/EditAttendanceModal'
+import EditAttendanceModal from './EditAttendanceModal'
 
 type Props = {
     attendances: any[]
     employees: any[]
     selectedMonth: string
+    refreshAttendances: () => void
 }
 
 export default function AttendanceList({
     attendances,
     employees,
     selectedMonth,
+    refreshAttendances,
 }: Props) {
     const [editingAttendance, setEditingAttendance] = useState<any>(null)
 
     async function deleteAttendance(id: string) {
         if (!confirm('Hapus attendance ini?')) return
         await supabase.from('attendance').delete().eq('id', id)
-        location.reload()
+        refreshAttendances()
     }
 
     const filteredAttendances = attendances.filter((a) => a.work_date?.startsWith(selectedMonth))
@@ -101,7 +103,11 @@ export default function AttendanceList({
                                                 </summary>
 
                                                 <div className="px-4 pb-4 space-y-3">
-                                                    {items.map((item: any) => (
+                                                    {items.sort((a: any, b: any) => {
+                                                        const indexA = employees.findIndex(e => String(e.id) === String(a.employee_id))
+                                                        const indexB = employees.findIndex(e => String(e.id) === String(b.employee_id))
+                                                        return (indexA !== -1 ? indexA : 999) - (indexB !== -1 ? indexB : 999)
+                                                    }).map((item: any) => (
                                                         <div
                                                             key={item.id}
                                                             className="bg-[#F3EBD9] border-4 border-[#111111] rounded-[24px] p-4"
@@ -180,6 +186,7 @@ export default function AttendanceList({
                     attendance={editingAttendance}
                     employees={employees}
                     onClose={() => setEditingAttendance(null)}
+                    refreshAttendances={refreshAttendances}
                 />
             )}
         </div>

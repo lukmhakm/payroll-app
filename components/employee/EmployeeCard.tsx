@@ -154,7 +154,7 @@ export default function EmployeeCard({ employee, deleteEmployee, refreshEmployee
                                 : 'Monthly Salary'}
                         </div>
 
-                        <div className="text-5xl font-black leading-none break-words tracking-tight">
+                        <div className="text-3xl sm:text-4xl lg:text-5xl font-black leading-none truncate tracking-tight" title={`Rp ${Number(formData.salary).toLocaleString()}`}>
                             Rp {Number(formData.salary).toLocaleString()}
                         </div>
 
