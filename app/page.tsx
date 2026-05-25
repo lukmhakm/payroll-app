@@ -17,7 +17,7 @@ import { useEmployees } from '@/hooks/useEmployees'
 import { useAttendances } from '@/hooks/useAttendances'
 import { usePayrollHistories } from '@/hooks/usePayrollHistories'
 import { usePayrollAdjustments } from '@/hooks/usePayrollAdjustments'
-import type { PayrollHistory } from '@/types'
+import type { PayrollHistory as PayrollHistoryType } from '@/types'
 
 export default function Home() {
 
@@ -29,7 +29,7 @@ export default function Home() {
     useState<any>(null)
 
   const [selectedHistory, setSelectedHistory] =
-    useState<PayrollHistory | null>(null)
+    useState<PayrollHistoryType | null>(null)
 
   const [selectedMonth, setSelectedMonth] =
     useState(
