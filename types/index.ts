@@ -33,6 +33,9 @@ export interface PayrollHistory {
   employee_id: string
   employee_name: string
   employee_position: string
+  bank_name?: string | null
+  bank_account_number?: string | null
+  bank_account_name?: string | null
   payroll_month: string
   base_salary: number
   overtime_pay: number
