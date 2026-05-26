@@ -220,8 +220,6 @@ export default function Home() {
 
             {/* Kolom Kanan: Area Karyawan */}
             <div className="flex flex-col gap-12 md:gap-16">
-              <EmployeeForm addEmployee={addEmployee} />
-
               <div className="flex flex-col gap-8 md:gap-16">
                 <div>
                   <h3
@@ -240,6 +238,8 @@ export default function Home() {
                     ))}
                   </div>
                 </div>
+
+                <EmployeeForm addEmployee={addEmployee} />
 
                 <PayrollHistory
                   histories={payrollHistories}

@@ -1,5 +1,7 @@
 'use client'
 
+import { useState } from 'react'
+
 import type { Employee, Attendance, PayrollHistory, PayrollAdjustment } from '@/types'
 import { calculatePayrollReport } from '@/lib/payrollEngine'
 
@@ -18,6 +20,7 @@ export default function PayrollAnalytics({
     adjustments = {},
     payrollHistories = [],
 }: Props) {
+    const [isExpanded, setIsExpanded] = useState(false)
 
     const report = calculatePayrollReport(
         employees,
@@ -39,12 +42,15 @@ export default function PayrollAnalytics({
                     Rp {Math.round(report.totalPayroll).toLocaleString()}
                 </div>
 
-                <details className="group border-t-4 border-[var(--theme-primary)] pt-4 transition-colors duration-300">
-                    <summary className="cursor-pointer list-none flex items-center justify-between text-[var(--theme-surface)] font-black uppercase tracking-widest">
+                <div className="border-t-4 border-[var(--theme-primary)] pt-4 transition-colors duration-300">
+                    <button onClick={() => setIsExpanded(!isExpanded)} className="w-full outline-none cursor-pointer list-none flex items-center justify-between text-[var(--theme-surface)] font-black uppercase tracking-widest">
                         Detail Payroll
-                        <span className="w-8 h-8 rounded-full bg-[var(--theme-surface)] text-[var(--theme-primary)] flex items-center justify-center font-bold">▼</span>
-                    </summary>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-4 mt-6 mb-4">
+                        <span className={`w-8 h-8 rounded-full bg-[var(--theme-surface)] text-[var(--theme-primary)] flex items-center justify-center font-bold transform transition-transform duration-300 ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>▼</span>
+                    </button>
+
+                    <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                        <div className="overflow-hidden">
+                            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-4 mt-6 mb-4">
                         <div className="bg-[var(--theme-primary)] rounded-[24px] p-4 text-[var(--theme-surface)] shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                             <div className="text-[11px] font-black uppercase tracking-[0.08em] opacity-70 mb-2">Employee</div>
                             <div className="text-3xl font-black leading-none tracking-tight">{employees.length}</div>
@@ -69,8 +75,10 @@ export default function PayrollAnalytics({
                             <div className="text-[11px] font-black uppercase tracking-[0.08em] opacity-80 mb-2">Potongan</div>
                             <div className="text-2xl font-black leading-none tracking-tight">Rp {Math.round(report.totalDeduction).toLocaleString()}</div>
                         </div>
+                            </div>
+                        </div>
                     </div>
-                </details>
+                </div>
             </div>
         </section>
     )

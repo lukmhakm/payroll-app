@@ -27,17 +27,19 @@ export default function PayrollCard({ employee, payroll, adjustment, isFinalized
                 onToggle={() => setIsExpanded(!isExpanded)} 
             />
             
-            {isExpanded && (
-                <PayrollCardDetails 
-                    employee={employee}
-                    payroll={payroll} 
-                    adjustment={adjustment}
-                    isFinalized={isFinalized}
-                    onUpdateAdjustment={onUpdateAdjustment}
-                    onGenerateSlip={onGenerateSlip} 
-                    onFinalize={onFinalize}
-                />
-            )}
+            <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                <div className="overflow-hidden">
+                    <PayrollCardDetails 
+                        employee={employee}
+                        payroll={payroll} 
+                        adjustment={adjustment}
+                        isFinalized={isFinalized}
+                        onUpdateAdjustment={onUpdateAdjustment}
+                        onGenerateSlip={onGenerateSlip} 
+                        onFinalize={onFinalize}
+                    />
+                </div>
+            </div>
         </div>
     )
 }
