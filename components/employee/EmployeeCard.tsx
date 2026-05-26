@@ -258,7 +258,11 @@ export default function EmployeeCard({ employee, deleteEmployee, refreshEmployee
                         </button>
 
                         <button
-                            onClick={() => deleteEmployee(employee.id)}
+                            onClick={() => {
+                                if (confirm(`Yakin ingin menghapus data karyawan ${formData.name}?`)) {
+                                    deleteEmployee(employee.id)
+                                }
+                            }}
                             className="flex-1 bg-[var(--theme-accent)] hover:brightness-90 text-[var(--theme-surface)] py-4 rounded-2xl text-lg font-black uppercase shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
                         >
                             Hapus

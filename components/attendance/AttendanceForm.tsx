@@ -145,7 +145,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                         type="date" 
                         value={date} 
                         onChange={(e) => setDate(e.target.value)} 
-                        className="w-full bg-[var(--theme-surface)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] [color-scheme:light] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-all duration-300" 
+                        className="w-full block min-w-0 appearance-none bg-[var(--theme-surface)] border-2 border-[var(--theme-primary)] rounded-2xl px-5 py-4 text-[var(--theme-primary)] [color-scheme:light] font-black shadow-[4px_4px_0px_var(--theme-primary)] outline-none transition-all duration-300" 
                     />
                     {recentDates.length > 0 && (
                         <div className="flex flex-col gap-2 mt-2">
@@ -177,7 +177,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                 {/* Jam Masuk */}
                 <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                     <span className="font-black text-[11px] uppercase tracking-[0.08em] text-[var(--theme-highlight)]">Masuk:</span>
-                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] [color-scheme:light] text-lg font-black outline-none" />
+                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 w-full min-w-0 appearance-none bg-transparent text-[var(--theme-primary)] [color-scheme:light] text-lg font-black outline-none" />
                 </div>
 
                 {/* Status */}
@@ -214,7 +214,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                 {status === 'hadir' && (
                     <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                         <span className="font-black text-[11px] uppercase tracking-[0.08em] text-[var(--theme-highlight)]">Keluar:</span>
-                        <input type="time" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="flex-1 bg-transparent text-[var(--theme-primary)] [color-scheme:light] text-lg font-black outline-none" />
+                        <input type="time" value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="flex-1 w-full min-w-0 appearance-none bg-transparent text-[var(--theme-primary)] [color-scheme:light] text-lg font-black outline-none" />
                     </div>
                 )}
 
