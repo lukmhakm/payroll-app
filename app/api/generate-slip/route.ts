@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 // Use puppeteer-core and the chromium-lambda package for serverless environments
 import puppeteer from 'puppeteer-core'
 import chromium from '@sparticuz/chromium'
+import type { Employee, CalculatedPayroll, AppSettings, ThemePalette } from '@/types'
 
 export async function POST(request: Request) {
     const {
@@ -32,20 +33,27 @@ export async function POST(request: Request) {
         // Configure Puppeteer for Vercel
         browser = await puppeteer.launch({
             args: chromium.args,
-            defaultViewport: chromium.defaultViewport,
+            // Use a standard viewport size. The `defaultViewport` from the chromium
+            // object can be unstable across versions, so we hardcode a reliable default.
+            defaultViewport: { width: 1280, height: 720 },
             executablePath: await chromium.executablePath(),
             headless: chromium.headless,
+            // Allow insecure HTTPS connections, which is often needed for local development.
             ignoreHTTPSErrors: true,
         });
 
-        const page = await browser.newPage()
+        const page = await browser.newPage();
 
         // Inject data into the page's window object before navigation.
         // This avoids long URLs and is the most reliable method.
-        await page.evaluateOnNewDocument((data, theme) => {
-            (window as any).__SALARY_SLIP_DATA__ = data;
-            (window as any).__SALARY_SLIP_THEME__ = theme;
-        }, dataPayload, theme);
+        await page.evaluateOnNewDocument(
+            (data: { employee: Employee, payroll: CalculatedPayroll, settings: AppSettings }, theme: ThemePalette) => {
+                (window as any).__SALARY_SLIP_DATA__ = data;
+                (window as any).__SALARY_SLIP_THEME__ = theme;
+            },
+            dataPayload,
+            theme
+        );
 
         const url = `${baseUrl}/slip-template`;
         await page.goto(url, { waitUntil: 'networkidle0' });
