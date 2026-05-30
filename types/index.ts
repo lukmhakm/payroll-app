@@ -50,3 +50,43 @@ export interface PayrollAdjustment {
   bonus: number
   deduction: number
 }
+
+export type AppSettings = {
+  companyName: string
+  slipFooterText: string
+  emailSignature: string
+  defaultPayrollStart: string
+  showConfidential: boolean
+  showWatermark: boolean
+  showOvertimeDetails?: boolean
+}
+
+export type ThemePalette = {
+  primary: string
+  surface: string
+  accent: string
+  highlight: string
+}
+
+/**
+ * Represents the calculated payroll data for a specific period,
+ * used for display in UI components before it's finalized and saved as PayrollHistory.
+ */
+export interface CalculatedPayroll {
+  payroll_month: string;
+  periodStart?: string;
+  periodEnd?: string;
+  baseSalary?: number;
+  overtime?: number;
+  totalOvertimePay?: number;
+  overtimeHours?: number;
+  overtimeDays?: number;
+  deduction?: number;
+  totalDeduction?: number;
+  absenceDeduction?: number;
+  extraAdjustment?: number;
+  bonus?: number;
+  finalSalary?: number;
+  hadirCount?: number;
+  attendanceCount?: number;
+}

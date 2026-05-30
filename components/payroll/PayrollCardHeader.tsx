@@ -1,7 +1,10 @@
 'use client'
 
+// TODO: This type should be imported from a central types file (e.g., @/types/payroll.ts)
+import type { Employee } from '@/types'
+
 interface Props {
-  employee: any
+  employee: Employee
   totalSalary?: number
   expanded: boolean
   isFinalized?: boolean
@@ -10,7 +13,7 @@ interface Props {
 
 export default function PayrollCardHeader({
   employee,
-  totalSalary,
+  totalSalary = 0,
   expanded,
   isFinalized,
   onToggle,

@@ -4,12 +4,15 @@ import React, { useState } from 'react'
 import PayrollCardHeader from './PayrollCardHeader'
 import PayrollCardDetails from './PayrollCardDetails'
 
+// TODO: These types should be imported from a central types file (e.g., @/types/payroll.ts)
+import type { Employee, CalculatedPayroll as Payroll, PayrollAdjustment } from '@/types'
+
 type Props = {
-    employee: any
-    payroll: any
-    adjustment?: any
+    employee: Employee
+    payroll: Payroll
+    adjustment?: PayrollAdjustment
     isFinalized: boolean
-    onUpdateAdjustment?: (field: string, value: number) => void
+    onUpdateAdjustment?: (field: 'bonus' | 'deduction', value: number) => void
     onGenerateSlip: () => void
     onFinalize: () => void
 }

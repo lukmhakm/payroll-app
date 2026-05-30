@@ -1,16 +1,16 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import html2canvas from 'html2canvas'
-import jsPDF from 'jspdf'
+import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 
 import { useTheme } from '@/providers/ThemeProvider'
 import { useSettings } from '@/providers/SettingsProvider'
+import type { Employee, CalculatedPayroll } from '@/types'
+import SlipContent from './SlipContent'
 
 type Props = {
-    employee: any
-    payroll: any
+    employee: Employee
+    payroll: CalculatedPayroll
     month?: string
     onClose: () => void
 }
@@ -32,16 +32,16 @@ export default function SalarySlipCard({
     const [footerText, setFooterText] = useState(settings.slipFooterText)
     const [watermarkEnabled, setWatermarkEnabled] = useState(settings.showWatermark)
     const [confidentialEnabled, setConfidentialEnabled] = useState(settings.showConfidential)
+    const [overtimeDetailsEnabled, setOvertimeDetailsEnabled] = useState(settings.showOvertimeDetails ?? true)
 
     useEffect(() => {
         if (showSettings) {
             setFooterText(settings.slipFooterText)
             setWatermarkEnabled(settings.showWatermark)
             setConfidentialEnabled(settings.showConfidential)
+            setOvertimeDetailsEnabled(settings.showOvertimeDetails ?? true)
         }
     }, [showSettings, settings])
-
-    const slipRef = useRef<any>(null)
 
     const getMonthLabel = () => month || payroll.payroll_month || 'Bulan-Ini'
 
@@ -50,68 +50,63 @@ export default function SalarySlipCard({
         updateSettings({
             slipFooterText: footerText,
             showWatermark: watermarkEnabled,
-            showConfidential: confidentialEnabled
+            showConfidential: confidentialEnabled,
+            showOvertimeDetails: overtimeDetailsEnabled
         })
 
         setShowSettings(false)
         toast.success('Slip settings updated')
     }
 
-    async function downloadSlip() {
+    async function downloadWithPuppeteer(format: 'png' | 'pdf') {
         if (loading) return
-        if (!slipRef.current) return
         setLoading(true)
 
         try {
-            const canvas = await html2canvas(slipRef.current, {
-                backgroundColor: theme.surface, // Nyesuain background pop-art
-                useCORS: true,
-                logging: false,
-                scale: 2,
-            })
+            const dataPayload = {
+                employee,
+                payroll,
+                settings,
+            }
 
-            const image = canvas.toDataURL('image/png')
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'a4' })
+            const secret = process.env.NEXT_PUBLIC_PUPPETEER_SECRET
+            if (!secret) {
+                toast.error("Client secret for Puppeteer is not configured.")
+                console.error("Error: NEXT_PUBLIC_PUPPETEER_SECRET environment variable is not set.")
+                return
+            }
 
-            const pdfWidth = pdf.internal.pageSize.getWidth()
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width
+            // Use fetch with POST to send data in the body, avoiding URL length limits
+            const response = await fetch('/api/generate-slip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    data: dataPayload,
+                    theme,
+                    format,
+                    secret,
+                }),
+            });
 
-            pdf.addImage(image, 'PNG', 0, 0, pdfWidth, pdfHeight)
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || `Server responded with status ${response.status}`);
+            }
 
-            const safeName = employee.name.replace(/\s+/g, '-')
-            pdf.save(`Salary-Slip-${safeName}-${getMonthLabel()}.pdf`)
+            // Handle the file download from the response blob
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `salary-slip-${employee.name.replace(/\s+/g, '-')}.${format}`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+
         } catch (error) {
-            console.error("Error generating PDF:", error)
-            toast.error("Gagal membuat PDF")
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    async function downloadPNG() {
-        if (loading) return
-        if (!slipRef.current) return
-        setLoading(true)
-
-        try {
-            const canvas = await html2canvas(slipRef.current, {
-                backgroundColor: theme.surface,
-                useCORS: true,
-                logging: false,
-                scale: 2,
-            })
-
-            const image = canvas.toDataURL('image/png')
-            const link = document.createElement('a')
-            link.href = image
-
-            const safeName = employee.name.replace(/\s+/g, '-')
-            link.download = `Salary-Slip-${safeName}-${getMonthLabel()}.png`
-
-            link.click()
-        } catch (error) {
-            console.error("Error generating PNG:", error)
-            toast.error("Gagal men-download gambar")
+            console.error("Error generating slip:", error);
+            toast.error((error as Error).message || "Failed to generate slip.");
         } finally {
             setLoading(false)
         }
@@ -119,7 +114,6 @@ export default function SalarySlipCard({
 
     async function sendEmail() {
         if (sending) return
-        if (!slipRef.current) return
         if (!employee.email) {
             toast.error('Employee email not found')
             return
@@ -127,60 +121,21 @@ export default function SalarySlipCard({
         setSending(true)
 
         try {
-            const canvas = await html2canvas(slipRef.current, {
-                backgroundColor: theme.surface,
-                useCORS: true,
-                logging: false,
-                scale: 2,
-            })
-
-            const image = canvas.toDataURL('image/png')
-
-            const response = await fetch('/api/send-slip', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    email: employee.email,
-                    employeeName: employee.name,
-                    image,
-                    month: getMonthLabel(),
-                    finalSalary: payroll.finalSalary,
-                }),
-            })
-
-            if (response.ok) {
-                toast.success('Slip sent successfully')
-            } else {
-                toast.error('Failed to send email')
-            }
-        } catch (error) {
+            // TODO: The API route needs to be adjusted to return a base64 string
+            // instead of a file download when a specific query parameter is provided.
+            toast.error("Send Email function is not yet implemented for the new flow.")
+        } catch (error: any) {
             console.error("Error sending email:", error)
-            toast.error('Terjadi kesalahan saat mengirim email')
+            toast.error(error.message || 'An error occurred while sending the email.')
         } finally {
             setSending(false)
         }
     }
 
-    const totalDeduction = Number(payroll.deduction || 0)
     const dailyDed = Number(employee.daily_deduction || 0)
-    let absenceDed = 0
-    let extraAdj = 0
-    let absentDays = 0
-
-    if (payroll.absenceDeduction !== undefined && payroll.extraAdjustment !== undefined) {
-        absenceDed = Number(payroll.absenceDeduction)
-        extraAdj = Number(payroll.extraAdjustment)
-        absentDays = dailyDed > 0 ? Math.floor(absenceDed / dailyDed) : 0
-    } else {
-        if (employee.employment_type !== 'freelance' && dailyDed > 0) {
-            absentDays = Math.floor(totalDeduction / dailyDed)
-            absenceDed = absentDays * dailyDed
-            const leftoverDed = totalDeduction - absenceDed
-            extraAdj = leftoverDed > 0 ? -leftoverDed : 0
-        } else {
-            extraAdj = totalDeduction > 0 ? -totalDeduction : 0
-        }
-    }
+    const absenceDed = Number(payroll.absenceDeduction || 0)
+    const extraAdj = Number(payroll.extraAdjustment || 0)
+    const absentDays = dailyDed > 0 ? Math.floor(absenceDed / dailyDed) : 0
 
     return (
         <div
@@ -207,237 +162,20 @@ export default function SalarySlipCard({
 
                 {/* AREA CAPTURE HTML2CANVAS (Harus pakai Inline Style CSS murni) */}
                 <div
-                    ref={slipRef}
-                    id="salary-slip"
-                    style={{
-                        backgroundColor: theme.surface, // Warm Cream
-                        border: `4px solid ${theme.primary}`, // Ink Black
-                        borderRadius: '16px',
-                        padding: '20px',
-                        color: theme.primary,
-                        fontFamily: 'system-ui, -apple-system, sans-serif',
-                        width: '100%',
-                        boxSizing: 'border-box',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        // Ngasih efek pop-art shadow ke canvas (opsional, tapi keren)
-                        boxShadow: `8px 8px 0px ${theme.primary}`
-                    }}
                 >
-                    {settings.showWatermark && (
-                        <div
-                            style={{
-                                position: 'absolute',
-                                inset: 0,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                pointerEvents: 'none',
-                                opacity: 0.08,
-                                fontSize: '72px',
-                                fontWeight: '900',
-                                transform: 'rotate(-24deg)',
-                                color: theme.primary,
-                                letterSpacing: '8px',
-                                textTransform: 'uppercase',
-                                zIndex: 1,
-                            }}
-                        >
-                            CONFIDENTIAL
-                        </div>
-                    )}
-                    {/* Header Slip */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px', position: 'relative', zIndex: 2 }}>
-                        <div>
-                            <div style={{ fontSize: '24px', fontWeight: '900', letterSpacing: '-1px', color: theme.accent, textTransform: 'uppercase', lineHeight: '1' }}>
-                                SALARY SLIP
-                            </div>
-                            <div style={{ color: theme.primary, fontSize: '12px', marginTop: '6px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                PERIODE: {getMonthLabel()}
-                            </div>
-                            {payroll.periodStart && payroll.periodEnd && (
-                                <div style={{ color: theme.primary, fontSize: '10px', marginTop: '4px', fontWeight: '700', opacity: 0.8 }}>
-                                    ({payroll.periodStart} s/d {payroll.periodEnd})
-                                </div>
-                            )}
-                        </div>
-                    {settings.showConfidential && (
-                        <div style={{ 
-                            backgroundColor: theme.primary, 
-                            padding: '8px 12px', 
-                            borderRadius: '8px', 
-                            fontSize: '12px', 
-                            fontWeight: '900', 
-                            color: theme.surface,
-                            border: `2px solid ${theme.primary}`,
-                            boxShadow: `2px 2px 0px ${theme.accent}`,
-                            textTransform: 'uppercase'
-                        }}>
-                            CONFIDENTIAL
-                        </div>
-                        )}
-                    </div>
-
-                    {/* Employee Identity Card (Cobalt Blue) */}
-                    <div style={{ 
-                        position: 'relative',
-                        zIndex: 2,
-                        backgroundColor: theme.highlight, 
-                        border: `3px solid ${theme.primary}`, 
-                        borderRadius: '12px', 
-                        padding: '16px', 
-                        marginBottom: '24px',
-                        boxShadow: `3px 3px 0px ${theme.primary}`,
-                        color: theme.surface
-                    }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                                <div style={{ fontSize: '20px', fontWeight: '900', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '-0.5px', lineHeight: '1.2' }}>
-                                    {employee.name}
-                                </div>
-                                <span style={{ 
-                                    backgroundColor: theme.primary, 
-                                    color: theme.surface, 
-                                    padding: '4px 8px', 
-                                    borderRadius: '4px', 
-                                    fontSize: '11px', 
-                                    fontWeight: '800', 
-                                    textTransform: 'uppercase',
-                                    border: `2px solid ${theme.primary}`
-                                }}>
-                                    {employee.position}
-                                </span>
-                            </div>
-                            <div style={{ textAlign: 'left', borderTop: `2px dashed ${theme.surface}66`, paddingTop: '12px' }}>
-                                <div style={{ color: theme.surface, fontSize: '10px', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px', opacity: 0.9 }}>Bank Account</div>
-                                <div style={{ fontWeight: '900', fontSize: '14px', textTransform: 'uppercase' }}>{employee.bank_name || '-'}</div>
-                                <div style={{ fontWeight: '700', fontSize: '13px', marginTop: '2px', letterSpacing: '1px' }}>{employee.bank_account_number || '-'}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Payroll Details */}
-                    <div style={{ marginBottom: '24px', position: 'relative', zIndex: 2 }}>
-                        <div style={{ fontSize: '12px', fontWeight: '900', color: theme.primary, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '16px', borderBottom: `3px solid ${theme.primary}`, paddingBottom: '8px' }}>
-                            Rincian Pendapatan & Potongan
-                        </div>
-
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
-                                <div>
-                                    {employee.employment_type === 'freelance'
-                                        ? `Daily Salary • ${payroll.attendanceCount || payroll.hadirCount || 0} Hari Kerja`
-                                        : 'Gaji Pokok'}
-                                </div>
-
-                                <div style={{ fontWeight: '900' }}>
-                                    {employee.employment_type === 'freelance'
-                                        ? `Rp ${Math.round((payroll.attendanceCount || payroll.hadirCount || 0) * Number(employee.base_salary || 0)).toLocaleString()}`
-                                        : `Rp ${Math.round(payroll.baseSalary || 0).toLocaleString()}`}
-                                </div>
-                            </div>
-
-                            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <div>Total Lembur</div>
-                                    {Number(payroll.overtimeHours || 0) > 0 && (
-                                        <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>
-                                            ({payroll.overtimeDays} Kali • {payroll.overtimeHours} Jam)
-                                        </div>
-                                    )}
-                                </div>
-                                <div style={{ fontWeight: '900', color: theme.highlight }}>
-                                    + Rp {Math.round(payroll.totalOvertimePay || payroll.overtime || 0).toLocaleString()}
-                                </div>
-                            </div>
-
-                            {Number(payroll.bonus || 0) > 0 && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
-                                    <div>Bonus Tambahan</div>
-                                    <div style={{ fontWeight: '900', color: theme.highlight }}>
-                                        + Rp {Math.round(payroll.bonus || 0).toLocaleString()}
-                                    </div>
-                                </div>
-                            )}
-
-                            {absenceDed > 0 && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <div>Potongan Absen</div>
-                                        {absentDays > 0 && (
-                                            <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>
-                                                ({absentDays} Hari)
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div style={{ fontWeight: '900', color: theme.accent }}>
-                                        - Rp {Math.round(absenceDed).toLocaleString()}
-                                    </div>
-                                </div>
-                            )}
-
-                            {extraAdj > 0 && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <div>Extra</div>
-                                        <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>
-                                            (THR/Bonus)
-                                        </div>
-                                    </div>
-                                    <div style={{ fontWeight: '900', color: theme.highlight }}>
-                                        + Rp {Math.round(extraAdj).toLocaleString()}
-                                    </div>
-                                </div>
-                            )}
-
-                            {extraAdj < 0 && (
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <div>Extra</div>
-                                        <div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>
-                                            (Kasbon/Lainnya)
-                                        </div>
-                                    </div>
-                                    <div style={{ fontWeight: '900', color: theme.accent }}>
-                                        - Rp {Math.round(Math.abs(extraAdj)).toLocaleString()}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    <div style={{ height: '4px', backgroundColor: theme.primary, marginBottom: '24px', width: '100%' }}></div>
-
-                    {/* Final Take Home Pay */}
-                    <div style={{ marginBottom: '24px', position: 'relative', zIndex: 2 }}>
-                        <div style={{ color: theme.primary, fontSize: '12px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>
-                            Take Home Pay
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                            <div style={{ 
-                                fontSize: '36px', 
-                                fontWeight: '900', 
-                                color: theme.accent, 
-                                lineHeight: '1', 
-                                whiteSpace: 'nowrap',
-                                letterSpacing: '-1.5px',
-                                textShadow: `2px 2px 0px ${theme.primary}`
-                            }}>
-                                Rp {Math.round(payroll.finalSalary || 0).toLocaleString()}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={{ textAlign: 'center', fontSize: '12px', color: theme.primary, fontWeight: '800', marginTop: '10px', textTransform: 'uppercase' }}>
-                        {settings.slipFooterText} • {new Date().toLocaleDateString('id-ID')}
-                    </div>
+                    <SlipContent
+                        employee={employee}
+                        payroll={payroll}
+                        settings={settings}
+                        theme={theme}
+                    />
                 </div>
                 {/* AKHIR AREA CAPTURE */}
 
                 {/* Tombol Aksi - Pakai Tailwind Pop-Art */}
                 <div className="grid grid-cols-2 gap-4 mt-2">
                     <button
-                        onClick={downloadPNG}
+                        onClick={() => downloadWithPuppeteer('png')}
                         disabled={loading || sending}
                         className="bg-[var(--theme-primary)] hover:opacity-80 text-[var(--theme-surface)] border-4 border-[var(--theme-primary)] rounded-2xl py-3.5 font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[4px_4px_0px_var(--theme-primary)] active:translate-y-[2px] active:shadow-[2px_2px_0px_var(--theme-primary)] disabled:opacity-50 flex items-center justify-center gap-2"
                     >
@@ -446,12 +184,12 @@ export default function SalarySlipCard({
                     </button>
 
                     <button
-                        onClick={downloadSlip}
+                        onClick={() => downloadWithPuppeteer('pdf')}
                         disabled={loading || sending}
                         className="bg-[var(--theme-primary)] hover:opacity-80 text-[var(--theme-surface)] border-4 border-[var(--theme-primary)] rounded-2xl py-3.5 font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-[4px_4px_0px_var(--theme-primary)] active:translate-y-[2px] active:shadow-[2px_2px_0px_var(--theme-primary)] disabled:opacity-50 flex items-center justify-center gap-2"
                     >
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                        {loading ? 'PDF...' : 'Save PDF'}
+                        {loading ? 'Generating...' : 'Save PDF'}
                     </button>
                 </div>
 
@@ -507,6 +245,19 @@ export default function SalarySlipCard({
                                         checked={confidentialEnabled}
                                         onChange={(e) =>
                                             setConfidentialEnabled(e.target.checked)
+                                        }
+                                        className="w-5 h-5"
+                                    />
+                                </label>
+
+                                <label className="flex items-center justify-between bg-[var(--theme-surface)] border-4 border-[var(--theme-primary)] text-[var(--theme-primary)] rounded-2xl px-4 py-3 font-black uppercase text-xs tracking-widest transition-colors duration-300">
+                                    <span>Detail Lembur</span>
+
+                                    <input
+                                        type="checkbox"
+                                        checked={overtimeDetailsEnabled}
+                                        onChange={(e) =>
+                                            setOvertimeDetailsEnabled(e.target.checked)
                                         }
                                         className="w-5 h-5"
                                     />

@@ -8,13 +8,7 @@ import {
   useState,
   ReactNode,
 } from 'react'
-
-export type ThemePalette = {
-  primary: string
-  surface: string
-  accent: string
-  highlight: string
-}
+import type { ThemePalette } from '@/types'
 
 type ThemeContextType = {
   theme: ThemePalette

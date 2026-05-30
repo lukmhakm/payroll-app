@@ -209,13 +209,13 @@ Current preferred interaction:
 
 ## SalarySlipCard.tsx
 
-Salary slip renderer.
+Menampilkan pratinjau slip gaji dan mengontrol proses pembuatannya.
 
 Features:
 
-- PNG export
-- PDF export
-- email sending
+- Memicu pembuatan PNG/PDF melalui API di sisi server (Puppeteer).
+- Mengelola UI untuk pengaturan slip (footer, watermark, dll).
+- Menangani logika pengiriman slip via email.
 - dynamic theme support
 - custom footer text
 - payroll visualization
@@ -446,6 +446,13 @@ monthlySalary
 - added color hex normalization (auto `#` insertion) in `ThemeProvider` to prevent UI breakage
 - blocked duplicate attendance saving logic with user alert
 - repositioned `PayrollHistory` to balance masonry grid layout
+- Migrated salary slip generation from client-side `html2canvas` to server-side Puppeteer to achieve 100% pixel-perfect rendering and fix all "background shifting" issues.
+- added delete confirmation prompt for employee deletion to prevent accidental data loss
+- fixed iOS Safari flexbox rendering bug on date and time inputs (`min-w-0`, `appearance-none`)
+- added mechanical "snappy" expand/collapse animations (`grid-rows-[0fr]/[1fr]`) to `PayrollCard`, `PayrollAnalytics`, and `EmployeeForm`
+- repositioned `EmployeeForm` below the Team Directory list in `page.tsx` for better visual hierarchy and layout balance
+
+
 
 ---
 

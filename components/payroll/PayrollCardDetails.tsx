@@ -1,11 +1,14 @@
 'use client'
 
+// TODO: These types should be imported from a central types file (e.g., @/types/payroll.ts)
+import type { Employee, CalculatedPayroll as Payroll, PayrollAdjustment } from '@/types'
+
 interface Props {
-  employee: any
-  payroll: any
-  adjustment?: any
+  employee: Employee
+  payroll: Payroll
+  adjustment?: PayrollAdjustment
   isFinalized?: boolean
-  onUpdateAdjustment?: (field: string, value: number) => void
+  onUpdateAdjustment?: (field: 'bonus' | 'deduction', value: number) => void
   onGenerateSlip: () => void
   onFinalize: () => void
 }
@@ -13,7 +16,7 @@ interface Props {
 export default function PayrollCardDetails({
   employee,
   payroll,
-  adjustment = { bonus: 0, deduction: 0 },
+  adjustment = { bonus: 0, deduction: 0 } as PayrollAdjustment,
   isFinalized,
   onUpdateAdjustment,
   onGenerateSlip,

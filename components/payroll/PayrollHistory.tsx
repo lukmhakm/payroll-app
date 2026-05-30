@@ -1,12 +1,13 @@
 'use client'
 
 import { supabase } from '@/lib/supabase'
+import type { Employee, PayrollHistory as PayrollHistoryType } from '@/types'
 
 type Props = {
-    histories: any[]
-    employees?: any[]
-    refreshPayrollHistories: any
-    onSelectHistory: any
+    histories: PayrollHistoryType[]
+    employees?: Employee[]
+    refreshPayrollHistories: () => void
+    onSelectHistory: (history: PayrollHistoryType) => void
 }
 
 export default function PayrollHistory({
@@ -42,7 +43,7 @@ export default function PayrollHistory({
 
     // FIX: Hapus console.log yang spamming di body komponen
 
-    const grouped: any = {}
+    const grouped: Record<string, PayrollHistoryType[]> = {}
     histories.forEach((history) => {
         if (!grouped[history.payroll_month]) {
             grouped[history.payroll_month] = []
@@ -71,10 +72,10 @@ export default function PayrollHistory({
                 {Object.entries(grouped)
                     // Urutkan bulan dari yang terbaru (Z-A) jika formatnya YYYY-MM
                     .sort(([monthA], [monthB]) => monthB.localeCompare(monthA))
-                    .map(([month, items]: any, index: number) => {
+                    .map(([month, items], index: number) => {
 
-                        const total = items.reduce((total: number, item: any) => total + Number(item.final_salary || 0), 0)
-                        const isAllPaid = items.every((item: any) => item.status === 'paid')
+                        const total = items.reduce((total: number, item) => total + Number(item.final_salary || 0), 0)
+                        const isAllPaid = items.every((item) => item.status === 'paid')
 
                         return (
                             <details key={month} open={index === 0} className="group bg-[var(--theme-surface)] border-4 border-[var(--theme-primary)] rounded-[32px] overflow-hidden shadow-[8px_8px_0px_var(--theme-primary)] transition-all duration-300">
@@ -122,12 +123,12 @@ export default function PayrollHistory({
 
                                 {/* List Karyawan */}
                                 <div className="p-5 space-y-4 bg-[var(--theme-surface)] transition-colors duration-300">
-                                    {items.sort((a: any, b: any) => {
+                                    {items.sort((a, b) => {
                                         if (!employees) return 0;
                                         const indexA = employees.findIndex(e => String(e.id) === String(a.employee_id))
                                         const indexB = employees.findIndex(e => String(e.id) === String(b.employee_id))
                                         return (indexA !== -1 ? indexA : 999) - (indexB !== -1 ? indexB : 999)
-                                    }).map((item: any) => (
+                                    }).map((item) => (
                                         <div
                                             key={item.id}
                                             onClick={() => onSelectHistory?.(item)}
@@ -135,11 +136,11 @@ export default function PayrollHistory({
                                         >
                                             <div className="flex items-center gap-4">
                                                 <div className="w-12 h-12 rounded-2xl bg-[var(--theme-highlight)] text-[var(--theme-surface)] border-4 border-[var(--theme-primary)] flex items-center justify-center font-black text-lg shadow-[3px_3px_0px_var(--theme-primary)] transition-colors duration-300">
-                                                    {(item.employee_name || item.employees?.name || 'E').substring(0, 1).toUpperCase()}
+                                                    {(item.employee_name || 'E').substring(0, 1).toUpperCase()}
                                                 </div>
                                                 <div>
                                                     <div className="font-black uppercase text-[var(--theme-primary)] text-xl transition-colors duration-300">
-                                                        {item.employee_name || item.employees?.name || 'Employee'}
+                                                        {item.employee_name || 'Employee'}
                                                     </div>
                                                     <div className="text-[var(--theme-highlight)] text-xs mt-1 font-black uppercase tracking-wide transition-colors duration-300">
                                                         Bonus: Rp {Math.round(item.bonus || 0).toLocaleString()} • Potongan: Rp {Math.round(item.deduction || 0).toLocaleString()}

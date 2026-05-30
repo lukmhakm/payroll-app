@@ -1,15 +1,7 @@
 'use client'
 
 import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from 'react'
-
-export type AppSettings = {
-  companyName: string
-  slipFooterText: string
-  emailSignature: string
-  defaultPayrollStart: string
-  showConfidential: boolean
-  showWatermark: boolean
-}
+import type { AppSettings } from '@/types'
 
 type SettingsContextType = {
   settings: AppSettings
@@ -23,6 +15,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   defaultPayrollStart: '1',
   showConfidential: true,
   showWatermark: false,
+  showOvertimeDetails: true,
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null)
@@ -38,6 +31,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       defaultPayrollStart: localStorage.getItem('default_payroll_start') || DEFAULT_SETTINGS.defaultPayrollStart,
       showConfidential: localStorage.getItem('slip_confidential_enabled') !== 'false',
       showWatermark: localStorage.getItem('slip_watermark_enabled') === 'true',
+      showOvertimeDetails: localStorage.getItem('slip_overtime_details_enabled') !== 'false',
     }
     setSettings(stored)
   }, [])
@@ -52,6 +46,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('default_payroll_start', updated.defaultPayrollStart)
     localStorage.setItem('slip_confidential_enabled', String(updated.showConfidential))
     localStorage.setItem('slip_watermark_enabled', String(updated.showWatermark))
+    localStorage.setItem('slip_overtime_details_enabled', String(updated.showOvertimeDetails))
   }
 
   const value = useMemo(() => ({ settings, updateSettings }), [settings])

@@ -2,15 +2,20 @@
 
 import { supabase } from '@/lib/supabase'
 import PayrollCard from './PayrollCard'
-import type { Employee, Attendance, PayrollHistory, PayrollAdjustment } from '@/types'
+import type { Employee, Attendance, PayrollHistory, PayrollAdjustment, CalculatedPayroll } from '@/types'
 import { calculatePayrollReport } from '@/lib/payrollEngine'
 import type { PayrollResult } from '@/lib/payrollEngine'
+
+type SlipGenerationPayload = {
+    employee: Employee;
+    payroll: CalculatedPayroll;
+}
 
 type Props = {
     employees: Employee[]
     attendances: Attendance[]
     selectedMonth: string
-    onGenerateSlip: any
+    onGenerateSlip: (payload: SlipGenerationPayload) => void
     refreshPayrollHistories: () => void
     adjustments: Record<string, PayrollAdjustment>
     onUpdateAdjustment: (employeeId: string, field: 'bonus' | 'deduction', value: number) => void
@@ -48,6 +53,7 @@ export default function PayrollSummary({
         onGenerateSlip({
             employee,
             payroll: {
+                payroll_month: selectedMonth,
                 periodStart: empReport.periodStart,
                 periodEnd: empReport.periodEnd,
                 baseSalary: employee.base_salary,
@@ -113,6 +119,7 @@ export default function PayrollSummary({
                     }
 
                     const payrollWithExtras = {
+                        payroll_month: selectedMonth,
                         periodStart: empReport.periodStart,
                         periodEnd: empReport.periodEnd,
                         baseSalary: empReport.basePay,
