@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import puppeteer from 'puppeteer'
+// Use puppeteer-core and the chromium-lambda package for serverless environments
+import puppeteer from 'puppeteer-core'
+import chromium from '@sparticuz/chromium'
 
 export async function POST(request: Request) {
     const {
@@ -27,10 +29,15 @@ export async function POST(request: Request) {
 
     let browser
     try {
+        // Configure Puppeteer for Vercel
         browser = await puppeteer.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        })
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
+            ignoreHTTPSErrors: true,
+        });
+
         const page = await browser.newPage()
 
         // Inject data into the page's window object before navigation.

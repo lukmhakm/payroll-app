@@ -270,32 +270,30 @@ export default function Home() {
       )}
 
       {selectedHistory && (() => {
-        // Ambil profil asli agar employment_type terbaca, atau gunakan fallback history
-        const emp = employees.find(e => String(e.id) === String(selectedHistory.employee_id)) || {
-          name: selectedHistory.employee_name,
-          position: selectedHistory.employee_position,
-          bank_name: selectedHistory.bank_name,
-          bank_account_number: selectedHistory.bank_account_number,
-          employment_type: 'fulltime' // Fallback
-        }
+        // Find the full employee profile from the current list of employees.
+        const emp = employees.find(e => String(e.id) === String(selectedHistory.employee_id))
 
-        // Re-kalkulasi jumlah hari hadir khusus untuk freelancer dari database history
-        let reconstructedAttendanceCount = 0
-        if (emp.employment_type === 'freelance' && emp.base_salary > 0) {
-          const baseTotal = Number(selectedHistory.final_salary || 0) - Number(selectedHistory.overtime_pay || 0) - Number(selectedHistory.bonus || 0) + Number(selectedHistory.deduction || 0)
-          reconstructedAttendanceCount = Math.round(baseTotal / emp.base_salary)
+        // Guard clause: If the employee is not found (e.g., has been deleted),
+        // show an alert and do not render the slip.
+        if (!emp) {
+          alert(`Cannot generate slip. Employee "${selectedHistory.employee_name}" may have been deleted.`)
+          setSelectedHistory(null) // Close the broken view
+          return null
         }
-
+        
         return (
           <SalarySlipCard
             employee={emp}
             payroll={{
+              // Reconstruct the payroll object from the history record.
+              payroll_month: selectedHistory.payroll_month,
               baseSalary: selectedHistory.base_salary,
               totalOvertimePay: selectedHistory.overtime_pay,
               bonus: selectedHistory.bonus,
               deduction: selectedHistory.deduction,
               finalSalary: selectedHistory.final_salary,
-              attendanceCount: reconstructedAttendanceCount,
+              // Note: attendanceCount, overtimeHours, etc., are not available in history
+              // and will be displayed as 0 or hidden in the slip, which is acceptable for historical views.
             }}
             month={selectedHistory.payroll_month}
             onClose={() => setSelectedHistory(null)}

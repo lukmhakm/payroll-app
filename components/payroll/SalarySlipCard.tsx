@@ -132,10 +132,7 @@ export default function SalarySlipCard({
         }
     }
 
-    const dailyDed = Number(employee.daily_deduction || 0)
-    const absenceDed = Number(payroll.absenceDeduction || 0)
-    const extraAdj = Number(payroll.extraAdjustment || 0)
-    const absentDays = dailyDed > 0 ? Math.floor(absenceDed / dailyDed) : 0
+    // Note: All calculation logic has been moved to the shared SlipContent component.
 
     return (
         <div
