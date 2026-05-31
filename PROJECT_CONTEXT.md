@@ -394,6 +394,8 @@ Avoid:
 - company branding
 - palette system
 - footer customization
+- theme presets system
+- dynamic HSL-based color generator
 
 ---
 
@@ -452,6 +454,8 @@ monthlySalary
 - fixed iOS Safari flexbox rendering bug on date and time inputs (`min-w-0`, `appearance-none`)
 - added mechanical "snappy" expand/collapse animations (`grid-rows-[0fr]/[1fr]`) to `PayrollCard`, `PayrollAnalytics`, and `EmployeeForm`
 - repositioned `EmployeeForm` below the Team Directory list in `page.tsx` for better visual hierarchy and layout balance
+- implemented Global Dynamic Colors using HSL color theory to auto-calculate balanced Neo-Brutalist themes from a single base color selection
+- added 6 preconfigured premium Neo-Brutalist theme presets (Original Brutalist, Cyberpunk Neon, Forest Mint, Warm Terracotta, Midnight Slate, Lavender Mist) in `lib/theme.ts` with instant preview UI in the settings modal
 
 
 
@@ -465,7 +469,6 @@ monthlySalary
 
 - Auto payroll generator
 - Payroll status system
-- Global dynamic colors
 
 ---
 
@@ -473,7 +476,6 @@ monthlySalary
 
 - Employee avatars
 - Company logo upload
-- Theme presets
 - Analytics upgrade
 - Better charts
 
