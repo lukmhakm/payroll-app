@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'react'
 import { useTheme } from '@/providers/ThemeProvider'
 import { useSettings } from '@/providers/SettingsProvider'
+import { THEME_PRESETS, generateBrutalistPalette } from '@/lib/theme'
 
 interface SettingsModalProps {
     open: boolean
@@ -26,6 +27,7 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
     const [showConfidential, setShowConfidential] = useState(settings.showConfidential)
     const [showWatermark, setShowWatermark] = useState(settings.showWatermark)
 
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
         if (!open) return
 
@@ -41,6 +43,7 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
         setShowWatermark(settings.showWatermark)
 
     }, [open, settings, theme])
+    /* eslint-enable react-hooks/set-state-in-effect */
 
     function saveSettings() {
         updateSettings({
@@ -118,6 +121,87 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
                             <div className="md:col-span-2">
                                 <div className="text-xs font-black uppercase tracking-[0.12em] text-[var(--theme-primary)] mb-4 transition-colors duration-300">
                                     Brand Palette
+                                </div>
+
+                                {/* THEME PRESETS */}
+                                <div className="mb-6">
+                                    <div className="text-[11px] font-black uppercase tracking-[0.12em] text-[var(--theme-primary)] mb-3 opacity-80">
+                                        Quick Select Preset Themes
+                                    </div>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                        {THEME_PRESETS.map((preset) => {
+                                            const isSelected = 
+                                                themePrimary === preset.palette.primary &&
+                                                themeSurface === preset.palette.surface &&
+                                                themeAccent === preset.palette.accent &&
+                                                themeHighlight === preset.palette.highlight;
+                                            
+                                            return (
+                                                <button
+                                                    key={preset.name}
+                                                    onClick={() => {
+                                                        setThemePrimary(preset.palette.primary)
+                                                        setThemeSurface(preset.palette.surface)
+                                                        setThemeAccent(preset.palette.accent)
+                                                        setThemeHighlight(preset.palette.highlight)
+                                                    }}
+                                                    type="button"
+                                                    className="flex flex-col items-start p-3 border-4 rounded-2xl bg-white hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_var(--theme-primary)] active:translate-y-0 active:shadow-[1px_1px_0px_var(--theme-primary)] transition-all cursor-pointer text-left w-full group"
+                                                    style={{
+                                                        boxShadow: isSelected
+                                                            ? '2px 2px 0px var(--theme-primary)'
+                                                            : '4px 4px 0px var(--theme-primary)',
+                                                        borderColor: isSelected
+                                                            ? 'var(--theme-accent)'
+                                                            : 'var(--theme-primary)',
+                                                        transform: isSelected
+                                                            ? 'translateY(2px) translateX(2px)'
+                                                            : 'none'
+                                                    }}
+                                                >
+                                                    <span className="text-[11px] font-black uppercase tracking-wider text-[var(--theme-primary)] mb-2 block truncate w-full">
+                                                        {preset.name}
+                                                    </span>
+                                                    <div className="flex gap-1.5 w-full">
+                                                        <span className="w-5 h-5 rounded-lg border-2 border-[var(--theme-primary)]" style={{ backgroundColor: preset.palette.surface }} title="Surface" />
+                                                        <span className="w-5 h-5 rounded-lg border-2 border-[var(--theme-primary)]" style={{ backgroundColor: preset.palette.accent }} title="Accent" />
+                                                        <span className="w-5 h-5 rounded-lg border-2 border-[var(--theme-primary)]" style={{ backgroundColor: preset.palette.highlight }} title="Highlight" />
+                                                        <span className="w-5 h-5 rounded-lg border-2 border-[var(--theme-primary)]" style={{ backgroundColor: preset.palette.primary }} title="Primary" />
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+
+                                {/* DYNAMIC THEME GENERATOR */}
+                                <div className="mb-8 border-4 border-dashed border-[var(--theme-primary)] rounded-3xl p-5 bg-white/40">
+                                    <div className="text-[11px] font-black uppercase tracking-[0.12em] text-[var(--theme-primary)] mb-1.5">
+                                        Dynamic Theme Generator
+                                    </div>
+                                    <p className="text-[10px] font-bold text-[var(--theme-primary)] opacity-70 mb-4 uppercase leading-snug">
+                                        Pick your base color, and we will auto-generate a cohesive Neo-Brutalist palette for you.
+                                    </p>
+                                    <div className="flex items-center gap-4">
+                                        <input
+                                            type="color"
+                                            className="w-14 h-14 border-4 border-[var(--theme-primary)] rounded-2xl cursor-pointer bg-white transition-transform duration-300 hover:scale-105 active:scale-95"
+                                            onChange={(e) => {
+                                                const generated = generateBrutalistPalette(e.target.value)
+                                                setThemePrimary(generated.primary)
+                                                setThemeSurface(generated.surface)
+                                                setThemeAccent(generated.accent)
+                                                setThemeHighlight(generated.highlight)
+                                            }}
+                                        />
+                                        <div className="text-xs font-black uppercase tracking-wider text-[var(--theme-primary)] animate-pulse">
+                                            ← Choose a color to auto-generate
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="text-[11px] font-black uppercase tracking-[0.12em] text-[var(--theme-primary)] mb-3 opacity-80">
+                                    Adjust Individual Colors
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

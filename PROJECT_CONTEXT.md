@@ -53,24 +53,25 @@ attendanceCount × dailySalary + overtime
 # CURRENT ARCHITECTURE
 
 ```text
-app/page.tsx
-│
-├── components/employee/
-│     ├── EmployeeForm.tsx
-│     └── EmployeeCard.tsx
-├── components/attendance/
-│     ├── AttendanceForm.tsx
-│     ├── AttendanceList.tsx
-│     └── EditAttendanceModal.tsx
-├── components/analytics/
-│     └── PayrollAnalytics.tsx
-├── components/payroll/
+app/
+├── page.tsx (Dashboard)
+├── api/generate-slip/route.ts (Puppeteer API)
+└── slip-template/page.tsx (Printable Slip)
+
+components/
+├── payroll/
 │     ├── PayrollSummary.tsx
 │     ├── PayrollCard.tsx
-│     ├── SalarySlipCard.tsx
+│     ├── SalarySlipCard.tsx (Uses SlipContent)
+│     ├── SlipContent.tsx (Shared UI)
 │     └── PayrollHistory.tsx
-└── components/settings/
-      └── SettingModal.tsx
+├── employee/
+│     ├── EmployeeForm.tsx
+│     └── EmployeeCard.tsx
+├── attendance/
+│     ├── AttendanceForm.tsx
+│     └── AttendanceList.tsx
+└── ... (other components)
 
 hooks/
 ├── useEmployees.ts
