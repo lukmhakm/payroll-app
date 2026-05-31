@@ -35,7 +35,7 @@ export async function POST(request: Request) {
             args: chromium.args,
             // Use a standard viewport size. The `defaultViewport` from the chromium
             // object can be unstable across versions, so we hardcode a reliable default.
-            defaultViewport: { width: 1280, height: 720 },
+            defaultViewport: { width: 1280, height: 720, deviceScaleFactor: 3 },
             executablePath: await chromium.executablePath(),
             // The `chromium.headless` property can be unstable across environments.
             // Setting to `true` is a reliable way to enable headless mode.
@@ -70,6 +70,11 @@ export async function POST(request: Request) {
             throw new Error(`Could not find selector '${slipSelector}' on the page after waiting.`);
         }
 
+        // Format the custom filename: SlipGaji-Nama-Tahun-Bulan
+        const safeName = dataPayload.employee.name.replace(/\s+/g, '-');
+        const safeMonth = dataPayload.payroll.payroll_month;
+        const filename = `SlipGaji-${safeName}-${safeMonth}`;
+
         if (format === 'pdf') {
             const pdfBuffer = await page.pdf({ format: 'A4', printBackground: true, margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' } });
             // Ensure the buffer is correctly typed for the NextResponse body
@@ -77,7 +82,7 @@ export async function POST(request: Request) {
                 status: 200,
                 headers: {
                     'Content-Type': 'application/pdf',
-                    'Content-Disposition': `attachment; filename="salary-slip.pdf"`,
+                    'Content-Disposition': `attachment; filename="${filename}.pdf"`,
                 },
             })
         }
@@ -89,7 +94,7 @@ export async function POST(request: Request) {
             status: 200,
             headers: {
                 'Content-Type': 'image/png',
-                'Content-Disposition': `attachment; filename="salary-slip.png"`,
+                'Content-Disposition': `attachment; filename="${filename}.png"`,
             },
         })
     } catch (error: any) {

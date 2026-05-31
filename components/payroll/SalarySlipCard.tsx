@@ -98,7 +98,8 @@ export default function SalarySlipCard({
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `salary-slip-${employee.name.replace(/\s+/g, '-')}.${format}`;
+            const safeName = employee.name.replace(/\s+/g, '-');
+            a.download = `SlipGaji-${safeName}-${payroll.payroll_month}.${format}`;
             document.body.appendChild(a);
             a.click();
             window.URL.revokeObjectURL(url);
