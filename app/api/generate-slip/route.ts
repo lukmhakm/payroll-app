@@ -37,9 +37,11 @@ export async function POST(request: Request) {
             // object can be unstable across versions, so we hardcode a reliable default.
             defaultViewport: { width: 1280, height: 720 },
             executablePath: await chromium.executablePath(),
-            headless: chromium.headless,
-            // Allow insecure HTTPS connections, which is often needed for local development.
-            ignoreHTTPSErrors: true,
+            // The `chromium.headless` property can be unstable across environments.
+            // Setting to `true` is a reliable way to enable headless mode.
+            headless: true,
+            // Allow insecure HTTPS connections. This is the correct property name for launch options.
+            acceptInsecureCerts: true,
         });
 
         const page = await browser.newPage();
