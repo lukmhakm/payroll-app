@@ -40,10 +40,12 @@ export function getPeriodDates(selectedMonth: string, startDay: number) {
             end: `${selectedMonth}-${String(lastDay).padStart(2, '0')}`
         }
     } else {
-        const startDateObj = new Date(year, month - 1, day)
+        // Backward Cut-off: Period ends in the selectedMonth at (day - 1)
+        // and starts in the previous month at (day)
+        const startDateObj = new Date(year, month - 2, day)
         const start = `${startDateObj.getFullYear()}-${String(startDateObj.getMonth() + 1).padStart(2, '0')}-${String(startDateObj.getDate()).padStart(2, '0')}`
         
-        const endDateObj = new Date(year, month, day - 1)
+        const endDateObj = new Date(year, month - 1, day - 1)
         const end = `${endDateObj.getFullYear()}-${String(endDateObj.getMonth() + 1).padStart(2, '0')}-${String(endDateObj.getDate()).padStart(2, '0')}`
         return { start, end }
     }
