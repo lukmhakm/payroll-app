@@ -57,7 +57,8 @@ export function calculatePayrollReport(
     attendances: Attendance[],
     selectedMonth: string,
     adjustments: Record<string, PayrollAdjustment> = {},
-    payrollHistories: PayrollHistory[] = []
+    payrollHistories: PayrollHistory[] = [],
+    useCalendarMonth: boolean = false
 ): PayrollSummaryReport {
     let totalPayroll = 0
     let totalOvertime = 0
@@ -73,7 +74,8 @@ export function calculatePayrollReport(
 
     employees.forEach((employee) => {
         const finalized = finalizedHistories.find(h => String(h.employee_id) === String(employee.id))
-        const { start, end } = getPeriodDates(selectedMonth, Number(employee.payroll_start_day) || 1)
+        const startDay = useCalendarMonth ? 1 : (Number(employee.payroll_start_day) || 1)
+        const { start, end } = getPeriodDates(selectedMonth, startDay)
         
         const employeeAttendances = attendances.filter((attendance) => {
             if (String(attendance.employee_id) !== String(employee.id)) return false
@@ -104,7 +106,7 @@ export function calculatePayrollReport(
         const employeeAdjustment = adjustments[employee.id] || { bonus: 0, deduction: 0 }
         const extraAdjustment = Number(employeeAdjustment.deduction || 0)
 
-        if (finalized) {
+        if (finalized && !useCalendarMonth) {
             empFinalSalary = Number(finalized.final_salary || 0)
             empOvertimePay = Number(finalized.overtime_pay || 0)
             empBonus = Number(finalized.bonus || 0)

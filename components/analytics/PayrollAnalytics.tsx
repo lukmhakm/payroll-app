@@ -27,7 +27,8 @@ export default function PayrollAnalytics({
         attendances,
         selectedMonth,
         adjustments,
-        payrollHistories
+        payrollHistories,
+        true
     )
 
     return (
@@ -64,7 +65,7 @@ export default function PayrollAnalytics({
                         <div className="text-3xl font-black leading-none tracking-tight">{report.totalOvertimeDays}x</div>
                     </div>
                         <div className="bg-[var(--theme-surface)] rounded-[24px] p-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
-                            <div className="text-[11px] font-black uppercase tracking-[0.08em] text-[var(--theme-accent)] mb-2">Lembur ({report.totalOvertimeHours} Jam)</div>
+                            <div className="text-[11px] font-black uppercase tracking-[0.08em] text-[var(--theme-accent)] mb-2">Lembur ({Number(report.totalOvertimeHours.toFixed(2))} Jam)</div>
                             <div className="text-2xl font-black text-[var(--theme-highlight)] leading-none tracking-tight">Rp {Math.round(report.totalOvertime).toLocaleString()}</div>
                         </div>
                         <div className="bg-[var(--theme-surface)] rounded-[24px] p-4 shadow-[4px_4px_0px_var(--theme-primary)] text-[var(--theme-primary)] transition-colors duration-300">

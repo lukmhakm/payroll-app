@@ -128,7 +128,7 @@ export default function SlipContent({ employee, payroll, settings, theme }: Prop
                         <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: '700' }}>
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
                                 <div>Total Lembur</div>
-                                {(settings.showOvertimeDetails ?? true) && Number(payroll.overtimeHours || 0) > 0 && (<div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>({payroll.overtimeDays} Kali • {payroll.overtimeHours} Jam)</div>)}
+                                {(settings.showOvertimeDetails ?? true) && Number(payroll.overtimeHours || 0) > 0 && (<div style={{ fontSize: '11px', opacity: 0.7, marginTop: '2px' }}>({payroll.overtimeDays} Kali • {Number(Number(payroll.overtimeHours || 0).toFixed(2))} Jam)</div>)}
                             </div>
                             <div style={{ fontWeight: '900', color: theme.highlight }}>+ Rp {Math.round(payroll.totalOvertimePay || payroll.overtime || 0).toLocaleString()}</div>
                         </div>

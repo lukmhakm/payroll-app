@@ -57,7 +57,7 @@ export default function PayrollCardDetails({
           <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[var(--theme-surface)] opacity-70">Overtime</span>
           {Number(payroll.overtimeHours || 0) > 0 && (
             <span className="text-[10px] sm:text-[11px] font-bold uppercase tracking-widest text-[var(--theme-surface)] opacity-50 mt-0.5">
-              ({payroll.overtimeDays} Kali • {payroll.overtimeHours} Jam)
+              ({payroll.overtimeDays} Kali • {Number(Number(payroll.overtimeHours || 0).toFixed(2))} Jam)
             </span>
           )}
         </div>
