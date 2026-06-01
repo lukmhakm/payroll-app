@@ -9,6 +9,18 @@ interface Props {
   expanded: boolean
   isFinalized?: boolean
   onToggle: () => void
+  periodStart?: string
+  periodEnd?: string
+}
+
+function formatDateShort(dateStr?: string) {
+  if (!dateStr) return ''
+  const parts = dateStr.split('-')
+  if (parts.length < 3) return dateStr
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const day = parseInt(parts[2], 10)
+  const monthIdx = parseInt(parts[1], 10) - 1
+  return `${day} ${months[monthIdx] || parts[1]}`
 }
 
 export default function PayrollCardHeader({
@@ -17,6 +29,8 @@ export default function PayrollCardHeader({
   expanded,
   isFinalized,
   onToggle,
+  periodStart,
+  periodEnd,
 }: Props) {
   return (
     <button
@@ -41,6 +55,7 @@ export default function PayrollCardHeader({
           </div>
           <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-[var(--theme-surface)] opacity-90 transition-colors duration-300">
             {employee.employment_type?.replace('_', ' ') || 'TETAP'}
+            {periodStart && periodEnd && ` • (${formatDateShort(periodStart)} - ${formatDateShort(periodEnd)})`}
           </span>
         </div>
       </div>

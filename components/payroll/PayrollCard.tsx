@@ -28,6 +28,8 @@ export default function PayrollCard({ employee, payroll, adjustment, isFinalized
                 expanded={isExpanded} 
                 isFinalized={isFinalized}
                 onToggle={() => setIsExpanded(!isExpanded)} 
+                periodStart={payroll.periodStart}
+                periodEnd={payroll.periodEnd}
             />
             
             <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>

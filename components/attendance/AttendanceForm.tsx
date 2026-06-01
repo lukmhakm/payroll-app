@@ -10,6 +10,65 @@ type Props = {
     refreshAttendances: () => void
 }
 
+function getTargetPayrollInfo(dateStr: string, startDay: number) {
+    const parts = dateStr.split('-')
+    if (parts.length < 3) return null
+    const y = parseInt(parts[0], 10)
+    const m = parseInt(parts[1], 10)
+    const d = parseInt(parts[2], 10)
+    const day = Number(startDay) || 1
+
+    let targetYear = y
+    let targetMonth = m
+    let startY = y
+    let startM = m
+    let endY = y
+    let endM = m
+
+    if (day === 1) {
+        const lastDay = new Date(y, m, 0).getDate()
+        return {
+            month: `${y}-${String(m).padStart(2, '0')}`,
+            start: `${y}-${String(m).padStart(2, '0')}-01`,
+            end: `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`
+        }
+    } else {
+        if (d >= day) {
+            targetMonth = m + 1
+            if (targetMonth > 12) {
+                targetMonth = 1
+                targetYear = y + 1
+            }
+            startM = m
+            startY = y
+            
+            endM = m + 1
+            if (endM > 12) {
+                endM = 1
+                endY = y + 1
+            }
+        } else {
+            targetMonth = m
+            targetYear = y
+            
+            startM = m - 1
+            if (startM < 1) {
+                startM = 12
+                startY = y - 1
+            }
+            
+            endM = m
+            endY = y
+        }
+        
+        return {
+            month: `${targetYear}-${String(targetMonth).padStart(2, '0')}`,
+            start: `${startY}-${String(startM).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+            end: `${endY}-${String(endM).padStart(2, '0')}-${String(day - 1).padStart(2, '0')}`
+        }
+    }
+}
+
 export default function AttendanceForm({ employees, attendances, refreshAttendances }: Props) {
     const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
     const [date, setDate] = useState(new Date().toISOString().split('T')[0])
@@ -36,7 +95,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
     function calculateOvertime() {
         if (!checkOut || status !== 'hadir') return 0
         const [outHour, outMinute] = checkOut.split(':').map(Number)
-        let overtimeStartHour = isNationalHoliday ? 8 : 14
+        const overtimeStartHour = isNationalHoliday ? 8 : 14
         const overtimeMinutes = (outHour * 60 + outMinute) - (overtimeStartHour * 60)
         return overtimeMinutes <= 0 ? 0 : Number((overtimeMinutes / 60).toFixed(2))
     }
@@ -170,6 +229,37 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                             {alreadyInputtedSelectedEmployees.length > 0 && (
                                 <div className="text-[var(--theme-accent)] mt-1">⚠️ Peringatan: {alreadyInputtedSelectedEmployees.length} karyawan yang dipilih sudah diabsen!</div>
                             )}
+                        </div>
+                    )}
+                    {selectedEmployeesData.length > 0 && (
+                        <div className="px-4 py-3 bg-[var(--theme-surface)] brightness-105 border-2 border-[var(--theme-primary)] rounded-xl text-xs font-black text-[var(--theme-primary)] shadow-[2px_2px_0px_var(--theme-primary)] space-y-1.5 mt-2">
+                            <div className="text-[10px] uppercase tracking-widest text-[var(--theme-highlight)]">Target Alokasi Payroll:</div>
+                            <div className="divide-y divide-[var(--theme-primary)] divide-opacity-10 max-h-[120px] overflow-y-auto pr-1">
+                                {selectedEmployeesData.map((emp) => {
+                                    const info = getTargetPayrollInfo(date, emp.payroll_start_day || 1)
+                                    if (!info) return null
+                                    
+                                    const monthNames = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"]
+                                    const [yStr, mStr] = info.month.split('-')
+                                    const displayMonth = `${monthNames[parseInt(mStr, 10) - 1]} ${yStr}`
+                                    
+                                    const formatDateShort = (dStr: string) => {
+                                        const p = dStr.split('-')
+                                        if (p.length < 3) return dStr
+                                        const shortMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                                        return `${parseInt(p[2], 10)} ${shortMonths[parseInt(p[1], 10) - 1]}`
+                                    }
+                                    
+                                    return (
+                                        <div key={emp.id} className="py-1 flex items-center justify-between gap-4 text-[11px]">
+                                            <span className="uppercase truncate font-black">{emp.name}</span>
+                                            <span className="shrink-0 text-right font-mono font-bold text-[var(--theme-primary)]">
+                                                Payroll {displayMonth} <span className="opacity-60">({formatDateShort(info.start)} - {formatDateShort(info.end)})</span>
+                                            </span>
+                                        </div>
+                                    )
+                                })}
+                            </div>
                         </div>
                     )}
                 </div>
