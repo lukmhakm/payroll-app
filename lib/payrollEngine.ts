@@ -25,6 +25,7 @@ export interface PayrollSummaryReport {
     totalBonus: number
     totalDeduction: number
     totalAttendanceCount: number
+    totalAbsence: number
     details: PayrollResult[]
 }
 
@@ -64,6 +65,7 @@ export function calculatePayrollReport(
     let totalBonus = 0
     let totalDeduction = 0
     let totalAttendanceCount = 0
+    let totalAbsence = 0
 
     const finalizedHistories = payrollHistories.filter(h => h.payroll_month === selectedMonth)
     const uniqueOvertimeDates = new Set<string>()
@@ -97,6 +99,7 @@ export function calculatePayrollReport(
 
         const empOvertimeDays = employeeAttendances.filter(a => Number(a.overtime_hours || 0) > 0).length
         const absentDays = employeeAttendances.filter((a) => a.status === 'izin' || a.status === 'alpha').length
+        totalAbsence += absentDays
         const absenceDeduction = employee.employment_type === 'freelance' ? 0 : absentDays * Number(employee.daily_deduction || 0)
         const employeeAdjustment = adjustments[employee.id] || { bonus: 0, deduction: 0 }
         const extraAdjustment = Number(employeeAdjustment.deduction || 0)
@@ -134,5 +137,5 @@ export function calculatePayrollReport(
         })
     })
 
-    return { totalPayroll, totalOvertime, totalOvertimeHours, totalOvertimeDays: uniqueOvertimeDates.size, totalBonus, totalDeduction, totalAttendanceCount, details }
+    return { totalPayroll, totalOvertime, totalOvertimeHours, totalOvertimeDays: uniqueOvertimeDates.size, totalBonus, totalDeduction, totalAttendanceCount, totalAbsence, details }
 }

@@ -56,8 +56,8 @@ export default function PayrollAnalytics({
                             <div className="text-3xl font-black leading-none tracking-tight">{employees.length}</div>
                         </div>
                         <div className="bg-[var(--theme-surface)] rounded-[24px] p-4 text-[var(--theme-highlight)] shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
-                            <div className="text-[11px] font-black uppercase tracking-[0.08em] opacity-70 mb-2">Attendance</div>
-                            <div className="text-3xl font-black leading-none tracking-tight">{report.totalAttendanceCount}</div>
+                            <div className="text-[11px] font-black uppercase tracking-[0.08em] opacity-70 mb-2">Absence</div>
+                            <div className="text-3xl font-black leading-none tracking-tight">{report.totalAbsence}</div>
                         </div>
                     <div className="bg-[var(--theme-surface)] rounded-[24px] p-4 text-[var(--theme-primary)] shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                         <div className="text-[11px] font-black uppercase tracking-[0.08em] opacity-70 mb-2">Kali Lembur</div>
