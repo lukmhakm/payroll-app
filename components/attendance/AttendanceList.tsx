@@ -3,10 +3,12 @@
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import EditAttendanceModal from './EditAttendanceModal'
+import type { Employee } from '@/types'
+import type { AttendanceWithEmployee } from '@/hooks/useAttendances'
 
 type Props = {
-    attendances: any[]
-    employees: any[]
+    attendances: AttendanceWithEmployee[]
+    employees: Employee[]
     selectedMonth: string
     refreshAttendances: () => void
 }
@@ -17,7 +19,7 @@ export default function AttendanceList({
     selectedMonth,
     refreshAttendances,
 }: Props) {
-    const [editingAttendance, setEditingAttendance] = useState<any>(null)
+    const [editingAttendance, setEditingAttendance] = useState<AttendanceWithEmployee | null>(null)
 
     async function deleteAttendance(id: string) {
         if (!confirm('Hapus attendance ini?')) return
@@ -25,9 +27,25 @@ export default function AttendanceList({
         refreshAttendances()
     }
 
-    const filteredAttendances = attendances.filter((a) => a.work_date?.startsWith(selectedMonth))
-    const groupedData: any = {}
-    filteredAttendances.forEach((a) => {
+    const getPrevMonth = (monthStr: string) => {
+        if (!monthStr) return ''
+        const [year, month] = monthStr.split('-').map(Number)
+        const prevMonthDate = new Date(year, month - 2, 1)
+        return `${prevMonthDate.getFullYear()}-${String(prevMonthDate.getMonth() + 1).padStart(2, '0')}`
+    }
+    const prevMonth = getPrevMonth(selectedMonth)
+    const filteredAttendances = attendances.filter((a) => 
+        a.work_date?.startsWith(selectedMonth) || (prevMonth && a.work_date?.startsWith(prevMonth))
+    )
+    
+    // Sort attendances from latest to oldest before grouping to preserve reverse chronological order
+    const sortedFilteredAttendances = [...filteredAttendances].sort((a, b) => {
+        return (b.work_date || '').localeCompare(a.work_date || '')
+    })
+
+    const groupedData: Record<string, Record<string, Record<string, AttendanceWithEmployee[]>>> = {}
+    sortedFilteredAttendances.forEach((a) => {
+        if (!a.work_date) return
         const date = new Date(a.work_date)
         const year = date.getFullYear()
         const month = date.toLocaleString('id-ID', { month: 'long' })
@@ -42,7 +60,7 @@ export default function AttendanceList({
         <div className="w-full">
             <h3 className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none text-[var(--theme-accent)] mb-6 px-1 transition-colors duration-300">Attendance History</h3>
             <div className="space-y-6">
-                {Object.entries(groupedData).map(([year, months]: any) => (
+                {Object.entries(groupedData).map(([year, months]) => (
                     <details
                         key={year}
                         open
@@ -61,7 +79,7 @@ export default function AttendanceList({
                         </summary>
 
                         <div className="p-5 space-y-5 bg-[var(--theme-primary)]">
-                            {Object.entries(months).map(([month, dates]: any) => (
+                            {Object.entries(months).map(([month, dates]) => (
                                 <details
                                     key={month}
                                     className="bg-[var(--theme-surface)] rounded-[32px] border-4 border-[var(--theme-primary)] overflow-hidden"
@@ -82,7 +100,7 @@ export default function AttendanceList({
                                     </summary>
 
                                     <div className="p-5 space-y-4">
-                                        {Object.entries(dates).map(([date, items]: any) => (
+                                        {Object.entries(dates).map(([date, items]) => (
                                             <details
                                                 key={date}
                                                 className="bg-[var(--theme-accent)] border-4 border-[var(--theme-primary)] rounded-[28px] overflow-hidden"
@@ -103,11 +121,11 @@ export default function AttendanceList({
                                                 </summary>
 
                                                 <div className="px-4 pb-4 space-y-3">
-                                                    {items.sort((a: any, b: any) => {
+                                                    {[...items].sort((a, b) => {
                                                         const indexA = employees.findIndex(e => String(e.id) === String(a.employee_id))
                                                         const indexB = employees.findIndex(e => String(e.id) === String(b.employee_id))
                                                         return (indexA !== -1 ? indexA : 999) - (indexB !== -1 ? indexB : 999)
-                                                    }).map((item: any) => (
+                                                    }).map((item) => (
                                                         <div
                                                             key={item.id}
                                                             className="bg-[var(--theme-surface)] border-4 border-[var(--theme-primary)] rounded-[24px] p-4"
