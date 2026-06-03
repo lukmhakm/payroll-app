@@ -28,7 +28,17 @@ export default function EditAttendanceModal({ attendance, employees, onClose, re
     function calculateOvertime() {
         if (!checkOut || status !== 'hadir') return 0
         const [outHour, outMinute] = checkOut.split(':').map(Number)
-        let overtimeStartHour = isNationalHoliday ? 8 : 14
+        
+        let overtimeStartHour = 14
+        if (isNationalHoliday) {
+            overtimeStartHour = 8
+        } else {
+            const dayOfWeek = new Date(date).getDay() // 0 = Sunday, 6 = Saturday
+            if (dayOfWeek === 6) {
+                overtimeStartHour = 15
+            }
+        }
+
         const overtimeMinutes = (outHour * 60 + outMinute) - (overtimeStartHour * 60)
         return overtimeMinutes <= 0 ? 0 : Number((overtimeMinutes / 60).toFixed(2))
     }
