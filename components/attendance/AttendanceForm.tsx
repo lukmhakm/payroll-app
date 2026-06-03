@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useSettings } from '@/providers/SettingsProvider'
 import type { Employee, Attendance } from '@/types'
 
 type Props = {
@@ -70,6 +71,7 @@ function getTargetPayrollInfo(dateStr: string, startDay: number) {
 }
 
 export default function AttendanceForm({ employees, attendances, refreshAttendances }: Props) {
+    const { settings } = useSettings()
     const [selectedEmployees, setSelectedEmployees] = useState<string[]>([])
     const [date, setDate] = useState(new Date().toISOString().split('T')[0])
     const [checkIn, setCheckIn] = useState('08:00')
@@ -96,15 +98,11 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
     function calculateOvertime() {
         if (!checkOut || status !== 'hadir') return 0
         const [outHour, outMinute] = checkOut.split(':').map(Number)
+        const [inHour] = checkIn.split(':').map(Number)
         
-        let overtimeStartHour = 14
+        let overtimeStartHour = inHour + Number(settings.workHoursPerDay || 6)
         if (isNationalHoliday) {
-            overtimeStartHour = 8
-        } else {
-            const dayOfWeek = new Date(date).getDay() // 0 = Sunday, 6 = Saturday
-            if (dayOfWeek === 6) {
-                overtimeStartHour = 15
-            }
+            overtimeStartHour = inHour
         }
 
         const overtimeMinutes = (outHour * 60 + outMinute) - (overtimeStartHour * 60)

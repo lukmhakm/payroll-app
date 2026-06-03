@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   showConfidential: true,
   showWatermark: false,
   showOvertimeDetails: true,
+  workHoursPerDay: '6',
 }
 
 const SettingsContext = createContext<SettingsContextType | null>(null)
@@ -32,6 +33,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       showConfidential: localStorage.getItem('slip_confidential_enabled') !== 'false',
       showWatermark: localStorage.getItem('slip_watermark_enabled') === 'true',
       showOvertimeDetails: localStorage.getItem('slip_overtime_details_enabled') !== 'false',
+      workHoursPerDay: localStorage.getItem('work_hours_per_day') || DEFAULT_SETTINGS.workHoursPerDay,
     }
     setSettings(stored)
   }, [])
@@ -47,6 +49,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('slip_confidential_enabled', String(updated.showConfidential))
     localStorage.setItem('slip_watermark_enabled', String(updated.showWatermark))
     localStorage.setItem('slip_overtime_details_enabled', String(updated.showOvertimeDetails))
+    if (updated.workHoursPerDay) {
+      localStorage.setItem('work_hours_per_day', updated.workHoursPerDay)
+    }
   }
 
   const value = useMemo(() => ({ settings, updateSettings }), [settings])

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { useSettings } from '@/providers/SettingsProvider'
 
 type Props = {
     attendance: any
@@ -11,6 +12,7 @@ type Props = {
 }
 
 export default function EditAttendanceModal({ attendance, employees, onClose, refreshAttendances }: Props) {
+    const { settings } = useSettings()
     const [selectedEmployee, setSelectedEmployee] = useState(attendance.employee_id || '')
     const [date, setDate] = useState(attendance.work_date || new Date().toISOString().split('T')[0])
     const [checkIn, setCheckIn] = useState(attendance.check_in || '08:00')
@@ -28,15 +30,11 @@ export default function EditAttendanceModal({ attendance, employees, onClose, re
     function calculateOvertime() {
         if (!checkOut || status !== 'hadir') return 0
         const [outHour, outMinute] = checkOut.split(':').map(Number)
+        const [inHour] = checkIn.split(':').map(Number)
         
-        let overtimeStartHour = 14
+        let overtimeStartHour = inHour + Number(settings.workHoursPerDay || 6)
         if (isNationalHoliday) {
-            overtimeStartHour = 8
-        } else {
-            const dayOfWeek = new Date(date).getDay() // 0 = Sunday, 6 = Saturday
-            if (dayOfWeek === 6) {
-                overtimeStartHour = 15
-            }
+            overtimeStartHour = inHour
         }
 
         const overtimeMinutes = (outHour * 60 + outMinute) - (overtimeStartHour * 60)

@@ -26,6 +26,7 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
     const [defaultPayrollStart, setDefaultPayrollStart] = useState(settings.defaultPayrollStart)
     const [showConfidential, setShowConfidential] = useState(settings.showConfidential)
     const [showWatermark, setShowWatermark] = useState(settings.showWatermark)
+    const [workHoursPerDay, setWorkHoursPerDay] = useState(settings.workHoursPerDay || '6')
 
     /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {
@@ -41,6 +42,7 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
         setDefaultPayrollStart(settings.defaultPayrollStart)
         setShowConfidential(settings.showConfidential)
         setShowWatermark(settings.showWatermark)
+        setWorkHoursPerDay(settings.workHoursPerDay || '6')
 
     }, [open, settings, theme])
     /* eslint-enable react-hooks/set-state-in-effect */
@@ -52,7 +54,8 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
             emailSignature,
             defaultPayrollStart,
             showConfidential,
-            showWatermark
+            showWatermark,
+            workHoursPerDay
         })
         
         updateTheme({
@@ -341,6 +344,19 @@ export default function SettingsModal({ open, onClose }: SettingsModalProps) {
                                 <input
                                     value={emailSignature}
                                     onChange={(e) => setEmailSignature(e.target.value)}
+                                    className="w-full bg-[var(--theme-surface)] text-[var(--theme-primary)] border-4 border-[var(--theme-primary)] rounded-2xl px-5 py-4 font-black outline-none transition-colors duration-300"
+                                />
+                            </div>
+
+                            <div>
+                                <div className="text-xs font-black uppercase tracking-[0.12em] mb-2 transition-colors duration-300">
+                                    Base Work Hours / Day
+                                </div>
+
+                                <input
+                                    type="number"
+                                    value={workHoursPerDay}
+                                    onChange={(e) => setWorkHoursPerDay(e.target.value)}
                                     className="w-full bg-[var(--theme-surface)] text-[var(--theme-primary)] border-4 border-[var(--theme-primary)] rounded-2xl px-5 py-4 font-black outline-none transition-colors duration-300"
                                 />
                             </div>

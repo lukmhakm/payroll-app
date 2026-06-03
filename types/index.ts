@@ -59,6 +59,7 @@ export type AppSettings = {
   showConfidential: boolean
   showWatermark: boolean
   showOvertimeDetails?: boolean
+  workHoursPerDay?: string
 }
 
 export type ThemePalette = {
