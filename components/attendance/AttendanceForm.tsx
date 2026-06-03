@@ -77,6 +77,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
     const [status, setStatus] = useState('hadir')
     const [isNationalHoliday, setIsNationalHoliday] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [showAdvanced, setShowAdvanced] = useState(false)
 
     const selectedEmployeesData = employees.filter(
         (employee) => selectedEmployees.includes(employee.id)
@@ -264,42 +265,6 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                     )}
                 </div>
 
-                {/* Jam Masuk */}
-                <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
-                    <span className="font-black text-[11px] uppercase tracking-[0.08em] text-[var(--theme-highlight)]">Masuk:</span>
-                    <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 w-full min-w-0 appearance-none bg-transparent text-[var(--theme-primary)] [color-scheme:light] text-lg font-black outline-none" />
-                </div>
-
-                {/* Status */}
-                <div className="relative z-40">
-                    <details className="w-full bg-[var(--theme-surface)] rounded-2xl text-[var(--theme-primary)] shadow-[4px_4px_0px_var(--theme-primary)] outline-none group border-2 border-[var(--theme-primary)] transition-all duration-300">
-                        <summary className="px-5 py-4 cursor-pointer list-none flex justify-between items-center font-black">
-                            <span className="uppercase">
-                                {status}
-                            </span>
-                            <span className="transform transition-transform group-open:rotate-180">
-                                ▼
-                            </span>
-                        </summary>
-                        <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--theme-surface)] text-[var(--theme-primary)] brightness-110 border-2 border-[var(--theme-primary)] rounded-2xl shadow-[4px_4px_0px_var(--theme-primary)] overflow-hidden">
-                            <div className="max-h-[240px] overflow-y-auto p-2 space-y-1">
-                                {['hadir', 'sakit', 'izin', 'alpha', 'libur'].map((s) => (
-                                    <div 
-                                        key={s} 
-                                        onClick={(e) => {
-                                            setStatus(s);
-                                            e.currentTarget.closest('details')?.removeAttribute('open');
-                                        }} 
-                                        className="flex items-center gap-3 p-3 hover:brightness-95 rounded-xl cursor-pointer transition-colors"
-                                    >
-                                        <span className="font-black uppercase tracking-wider text-sm">{s}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </details>
-                </div>
-
                 {/* Jam Keluar (Muncul kalau Hadir) */}
                 {status === 'hadir' && (
                     <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
@@ -308,32 +273,85 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                     </div>
                 )}
 
-                {/* Checklist Libur */}
-                {status === 'hadir' && (
-                    <label className="flex items-center gap-3 font-black uppercase text-sm cursor-pointer bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
-                        <input type="checkbox" checked={isNationalHoliday} onChange={(e) => setIsNationalHoliday(e.target.checked)} className="w-6 h-6 border-2 border-[var(--theme-surface)]" />
-                        Hari Libur Nasional
-                    </label>
-                )}
+                {/* Tombol Toggle Opsi Lanjutan */}
+                <button
+                    type="button"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="w-full text-left outline-none cursor-pointer p-4 bg-[var(--theme-surface)] brightness-110 border-4 border-[var(--theme-primary)] rounded-[20px] flex items-center justify-between font-black uppercase tracking-widest text-[10px] text-[var(--theme-primary)] transition-all duration-300 shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                >
+                    <span>{showAdvanced ? 'Sembunyikan Opsi Lanjutan' : 'Tampilkan Lebih Banyak Opsi'}</span>
+                    <span className={`w-6 h-6 rounded-full bg-[var(--theme-primary)] text-[var(--theme-surface)] flex items-center justify-center font-bold text-[10px] transform transition-transform duration-300 ${showAdvanced ? 'rotate-180' : 'rotate-0'}`}>▼</span>
+                </button>
 
-                {/* Total Lembur */}
-                <div className="text-sm font-black uppercase bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
-                    Total Lembur: <span className="text-[var(--theme-accent)]">{calculateOvertime()} Jam</span>
-                </div>
+                {/* Opsi Lanjutan (Jam Masuk, Status, Checklist Libur, Total Lembur, Rule) */}
+                <div className={`grid transition-all duration-300 ease-in-out ${showAdvanced ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0 pointer-events-none'}`}>
+                    <div className="overflow-hidden space-y-4">
+                        <div className="pt-2 space-y-4">
+                            {/* Jam Masuk */}
+                            <div className="flex gap-3 items-center bg-[var(--theme-surface)] rounded-2xl px-5 py-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
+                                <span className="font-black text-[11px] uppercase tracking-[0.08em] text-[var(--theme-highlight)]">Masuk:</span>
+                                <input type="time" value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="flex-1 w-full min-w-0 appearance-none bg-transparent text-[var(--theme-primary)] [color-scheme:light] text-lg font-black outline-none" />
+                            </div>
 
-                {selectedEmployeesData.length > 0 && (
-                    <div className="bg-[var(--theme-primary)] rounded-[28px] p-5 text-[var(--theme-surface)] shadow-[5px_5px_0px_var(--theme-primary)] transition-colors duration-300">
-                        <div className="text-[11px] uppercase tracking-[0.12em] font-black opacity-70 mb-3">
-                            Payroll Rule
-                        </div>
+                            {/* Status */}
+                            <div className="relative z-40">
+                                <details className="w-full bg-[var(--theme-surface)] rounded-2xl text-[var(--theme-primary)] shadow-[4px_4px_0px_var(--theme-primary)] outline-none group border-2 border-[var(--theme-primary)] transition-all duration-300">
+                                    <summary className="px-5 py-4 cursor-pointer list-none flex justify-between items-center font-black">
+                                        <span className="uppercase">
+                                            {status}
+                                        </span>
+                                        <span className="transform transition-transform group-open:rotate-180">
+                                            ▼
+                                        </span>
+                                    </summary>
+                                    <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--theme-surface)] text-[var(--theme-primary)] brightness-110 border-2 border-[var(--theme-primary)] rounded-2xl shadow-[4px_4px_0px_var(--theme-primary)] overflow-hidden">
+                                        <div className="max-h-[240px] overflow-y-auto p-2 space-y-1">
+                                            {['hadir', 'sakit', 'izin', 'alpha', 'libur'].map((s) => (
+                                                <div 
+                                                    key={s} 
+                                                    onClick={(e) => {
+                                                        setStatus(s);
+                                                        e.currentTarget.closest('details')?.removeAttribute('open');
+                                                    }} 
+                                                    className="flex items-center gap-3 p-3 hover:brightness-95 rounded-xl cursor-pointer transition-colors"
+                                                >
+                                                    <span className="font-black uppercase tracking-wider text-sm">{s}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
 
-                        <div className="text-sm font-black leading-relaxed uppercase">
-                            {hasFreelance
-                                ? 'Freelance dihitung berdasarkan jumlah hari hadir.'
-                                : 'Jika tidak ada attendance maka dianggap hadir tanpa lembur.'}
+                            {/* Checklist Libur */}
+                            {status === 'hadir' && (
+                                <label className="flex items-center gap-3 font-black uppercase text-sm cursor-pointer bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
+                                    <input type="checkbox" checked={isNationalHoliday} onChange={(e) => setIsNationalHoliday(e.target.checked)} className="w-6 h-6 border-2 border-[var(--theme-surface)]" />
+                                    Hari Libur Nasional
+                                </label>
+                            )}
+
+                            {/* Total Lembur */}
+                            <div className="text-sm font-black uppercase bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
+                                Total Lembur: <span className="text-[var(--theme-accent)]">{calculateOvertime()} Jam</span>
+                            </div>
+
+                            {selectedEmployeesData.length > 0 && (
+                                <div className="bg-[var(--theme-primary)] rounded-[28px] p-5 text-[var(--theme-surface)] shadow-[5px_5px_0px_var(--theme-primary)] transition-colors duration-300">
+                                    <div className="text-[11px] uppercase tracking-[0.12em] font-black opacity-70 mb-3">
+                                        Payroll Rule
+                                    </div>
+
+                                    <div className="text-sm font-black leading-relaxed uppercase">
+                                        {hasFreelance
+                                            ? 'Freelance dihitung berdasarkan jumlah hari hadir.'
+                                            : 'Jika tidak ada attendance maka dianggap hadir tanpa lembur.'}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
-                )}
+                </div>
 
                 <button onClick={saveAttendance} disabled={loading} className="w-full mt-7 bg-[var(--theme-accent)] hover:brightness-90 text-[var(--theme-surface)] py-4 rounded-2xl font-black uppercase tracking-widest shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300">
                     {loading ? 'Menyimpan...' : 'Simpan Attendance'}
