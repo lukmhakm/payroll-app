@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import type { Employee, PayrollHistory as PayrollHistoryType } from '@/types'
 
@@ -16,6 +17,7 @@ export default function PayrollHistory({
     refreshPayrollHistories,
     onSelectHistory,
 }: Props) {
+    const [expandedMonths, setExpandedMonths] = useState<Record<string, boolean>>({})
 
     async function markAsPaid(payrollId: string) {
         await supabase
@@ -40,8 +42,6 @@ export default function PayrollHistory({
             refreshPayrollHistories()
         }
     }
-
-    // FIX: Hapus console.log yang spamming di body komponen
 
     const grouped: Record<string, PayrollHistoryType[]> = {}
     histories.forEach((history) => {
@@ -76,13 +76,17 @@ export default function PayrollHistory({
 
                         const total = items.reduce((total: number, item) => total + Number(item.final_salary || 0), 0)
                         const isAllPaid = items.every((item) => item.status === 'paid')
+                        const isExpanded = !!expandedMonths[month]
 
                         return (
-                            <details key={month} open={index === 0} className="group bg-[var(--theme-surface)] border-4 border-[var(--theme-primary)] rounded-[32px] overflow-hidden shadow-[8px_8px_0px_var(--theme-primary)] transition-all duration-300">
+                            <div key={month} className="bg-[var(--theme-surface)] border-4 border-[var(--theme-primary)] rounded-[32px] overflow-hidden shadow-[8px_8px_0px_var(--theme-primary)] transition-all duration-300">
                                 
                                 {/* Header Card Bulan */}
-                                <summary className="list-none cursor-pointer p-6 flex flex-col gap-5 bg-[var(--theme-highlight)] text-[var(--theme-surface)] group-open:border-b-4 border-[var(--theme-primary)] transition-colors duration-300">
-                                    <div className="flex items-center justify-between gap-4">
+                                <button
+                                    onClick={() => setExpandedMonths(prev => ({ ...prev, [month]: !prev[month] }))}
+                                    className={`w-full text-left outline-none cursor-pointer p-6 flex flex-col gap-5 bg-[var(--theme-highlight)] text-[var(--theme-surface)] ${isExpanded ? 'border-b-4' : 'border-b-0'} border-[var(--theme-primary)] transition-colors duration-300`}
+                                >
+                                    <div className="flex items-center justify-between gap-4 w-full">
                                         <div className="flex items-center gap-4">
                                             <div className="hidden sm:flex w-12 h-12 rounded-2xl bg-[var(--theme-surface)] text-[var(--theme-highlight)] border-4 border-[var(--theme-primary)] items-center justify-center shadow-[4px_4px_0px_var(--theme-primary)] shrink-0 transition-colors duration-300">
                                                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -97,11 +101,11 @@ export default function PayrollHistory({
                                                 <div className="text-xs sm:text-sm font-black uppercase tracking-wide text-[var(--theme-surface)] opacity-80 mt-2 sm:mt-1">{items.length} Employees Processed</div>
                                             </div>
                                         </div>
-                                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--theme-surface)] text-[var(--theme-primary)] flex items-center justify-center font-bold text-sm shrink-0 transform transition-all duration-300 group-open:rotate-180 border-2 border-[var(--theme-primary)] shadow-[2px_2px_0px_var(--theme-primary)]">
+                                        <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--theme-surface)] text-[var(--theme-primary)] flex items-center justify-center font-bold text-sm shrink-0 transform transition-all duration-300 border-2 border-[var(--theme-primary)] shadow-[2px_2px_0px_var(--theme-primary)] ${isExpanded ? 'rotate-180' : 'rotate-0'}`}>
                                             ▼
                                         </div>
                                     </div>
-                                    <div className="flex flex-col-reverse md:flex-row md:items-end justify-between gap-4 mt-2">
+                                    <div className="flex flex-col-reverse md:flex-row md:items-end justify-between gap-4 mt-2 w-full">
                                         <button
                                             onClick={(e) => {
                                                 e.preventDefault()
@@ -119,64 +123,68 @@ export default function PayrollHistory({
                                             </div>
                                         </div>
                                     </div>
-                                </summary>
+                                </button>
 
                                 {/* List Karyawan */}
-                                <div className="p-5 space-y-4 bg-[var(--theme-surface)] transition-colors duration-300">
-                                    {items.sort((a, b) => {
-                                        if (!employees) return 0;
-                                        const indexA = employees.findIndex(e => String(e.id) === String(a.employee_id))
-                                        const indexB = employees.findIndex(e => String(e.id) === String(b.employee_id))
-                                        return (indexA !== -1 ? indexA : 999) - (indexB !== -1 ? indexB : 999)
-                                    }).map((item) => (
-                                        <div
-                                            key={item.id}
-                                            onClick={() => onSelectHistory?.(item)}
-                                            className="group flex flex-col gap-5 bg-[var(--theme-surface)] brightness-110 border-4 border-[var(--theme-primary)] rounded-[28px] p-5 cursor-pointer shadow-[6px_6px_0px_var(--theme-primary)] transition-all duration-300 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
-                                        >
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-12 h-12 rounded-2xl bg-[var(--theme-highlight)] text-[var(--theme-surface)] border-4 border-[var(--theme-primary)] flex items-center justify-center font-black text-lg shadow-[3px_3px_0px_var(--theme-primary)] transition-colors duration-300">
-                                                    {(item.employee_name || 'E').substring(0, 1).toUpperCase()}
-                                                </div>
-                                                <div>
-                                                    <div className="font-black uppercase text-[var(--theme-primary)] text-xl transition-colors duration-300">
-                                                        {item.employee_name || 'Employee'}
+                                <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                                    <div className="overflow-hidden">
+                                        <div className="p-5 space-y-4 bg-[var(--theme-surface)] transition-colors duration-300">
+                                            {items.sort((a, b) => {
+                                                if (!employees) return 0;
+                                                const indexA = employees.findIndex(e => String(e.id) === String(a.employee_id))
+                                                const indexB = employees.findIndex(e => String(e.id) === String(b.employee_id))
+                                                return (indexA !== -1 ? indexA : 999) - (indexB !== -1 ? indexB : 999)
+                                            }).map((item) => (
+                                                <div
+                                                    key={item.id}
+                                                    onClick={() => onSelectHistory?.(item)}
+                                                    className="group flex flex-col gap-5 bg-[var(--theme-surface)] brightness-110 border-4 border-[var(--theme-primary)] rounded-[28px] p-5 cursor-pointer shadow-[6px_6px_0px_var(--theme-primary)] transition-all duration-300 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                                                >
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-12 h-12 rounded-2xl bg-[var(--theme-highlight)] text-[var(--theme-surface)] border-4 border-[var(--theme-primary)] flex items-center justify-center font-black text-lg shadow-[3px_3px_0px_var(--theme-primary)] transition-colors duration-300">
+                                                            {(item.employee_name || 'E').substring(0, 1).toUpperCase()}
+                                                        </div>
+                                                        <div>
+                                                            <div className="font-black uppercase text-[var(--theme-primary)] text-xl transition-colors duration-300">
+                                                                {item.employee_name || 'Employee'}
+                                                            </div>
+                                                            <div className="text-[var(--theme-highlight)] text-xs mt-1 font-black uppercase tracking-wide transition-colors duration-300">
+                                                                Bonus: Rp {Math.round(item.bonus || 0).toLocaleString()} • Potongan: Rp {Math.round(item.deduction || 0).toLocaleString()}
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div className="text-[var(--theme-highlight)] text-xs mt-1 font-black uppercase tracking-wide transition-colors duration-300">
-                                                        Bonus: Rp {Math.round(item.bonus || 0).toLocaleString()} • Potongan: Rp {Math.round(item.deduction || 0).toLocaleString()}
-                                                    </div>
-                                                </div>
-                                            </div>
 
-                                            <div className="flex items-center justify-between gap-4 border-t-4 border-[var(--theme-primary)] pt-4 transition-colors duration-300">
-                                                <div className="text-left sm:text-right">
-                                                    <div className="text-[var(--theme-primary)] font-black text-2xl tracking-tight transition-colors duration-300">
-                                                        Rp {Math.round(item.final_salary || 0).toLocaleString()}
-                                                    </div>
-                                                    <div className="text-xs text-[var(--theme-highlight)] mt-1 font-black uppercase tracking-wide transition-colors duration-300">Final Salary</div>
-                                                </div>
+                                                    <div className="flex items-center justify-between gap-4 border-t-4 border-[var(--theme-primary)] pt-4 transition-colors duration-300">
+                                                        <div className="text-left sm:text-right">
+                                                            <div className="text-[var(--theme-primary)] font-black text-2xl tracking-tight transition-colors duration-300">
+                                                                Rp {Math.round(item.final_salary || 0).toLocaleString()}
+                                                            </div>
+                                                            <div className="text-xs text-[var(--theme-highlight)] mt-1 font-black uppercase tracking-wide transition-colors duration-300">Final Salary</div>
+                                                        </div>
 
-                                                {item.status !== 'paid' ? (
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            markAsPaid(item.id)
-                                                        }}
-                                                        className="bg-[var(--theme-highlight)] hover:brightness-125 text-[var(--theme-surface)] border-4 border-[var(--theme-primary)] px-4 py-3 rounded-2xl text-xs font-black uppercase shadow-[3px_3px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
-                                                    >
-                                                        Mark as Paid
-                                                    </button>
-                                                ) : (
-                                                    <div className="px-3 py-2 rounded-2xl bg-[var(--theme-accent)] text-[var(--theme-surface)] text-xs font-black uppercase border-4 border-[var(--theme-primary)] shadow-[3px_3px_0px_var(--theme-primary)] flex items-center gap-2 transition-colors duration-300">
-                                                        <svg className="w-3.5 h-3.5 text-[var(--theme-surface)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                                                        PAID
+                                                        {item.status !== 'paid' ? (
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation()
+                                                                    markAsPaid(item.id)
+                                                                }}
+                                                                className="bg-[var(--theme-highlight)] hover:brightness-125 text-[var(--theme-surface)] border-4 border-[var(--theme-primary)] px-4 py-3 rounded-2xl text-xs font-black uppercase shadow-[3px_3px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
+                                                            >
+                                                                Mark as Paid
+                                                            </button>
+                                                        ) : (
+                                                            <div className="px-3 py-2 rounded-2xl bg-[var(--theme-accent)] text-[var(--theme-surface)] text-xs font-black uppercase border-4 border-[var(--theme-primary)] shadow-[3px_3px_0px_var(--theme-primary)] flex items-center gap-2 transition-colors duration-300">
+                                                                <svg className="w-3.5 h-3.5 text-[var(--theme-surface)]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                                                                PAID
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
+                                    </div>
                                 </div>
-                            </details>
+                            </div>
                         )
                     })}
             </div>
