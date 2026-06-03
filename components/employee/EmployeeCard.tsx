@@ -210,7 +210,7 @@ export default function EmployeeCard({ employee, deleteEmployee, refreshEmployee
 
                         <div className={`col-span-2 grid transition-all duration-300 ease-in-out ${isContactExpanded ? 'grid-rows-[1fr] opacity-100 -mt-2' : 'grid-rows-[0fr] opacity-0'}`}>
                             <div className="overflow-hidden">
-                                <div className="bg-[var(--theme-primary)] rounded-[28px] p-5 text-[var(--theme-surface)] shadow-[5px_5px_0px_var(--theme-highlight)] transition-colors duration-300 mt-2">
+                                <div className="bg-[var(--theme-primary)] rounded-[28px] p-5 text-[var(--theme-surface)] transition-colors duration-300 mt-2">
                                     <div className="flex items-center justify-between mb-4">
                                         <div>
                                             <div className="text-[11px] uppercase tracking-[0.12em] font-black opacity-70 mb-2">
