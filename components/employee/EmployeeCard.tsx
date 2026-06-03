@@ -13,6 +13,7 @@ interface Props {
 export default function EmployeeCard({ employee, deleteEmployee, refreshEmployees }: Props) {
     const [isEditing, setIsEditing] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [isContactExpanded, setIsContactExpanded] = useState(false)
     
     const [formData, setFormData] = useState({
         name: employee.name, position: employee.position, salary: employee.base_salary,
@@ -198,51 +199,64 @@ export default function EmployeeCard({ employee, deleteEmployee, refreshEmployee
                             </div>
                         </div>
 
-                        <div className="col-span-2 bg-[var(--theme-primary)] rounded-[28px] p-5 text-[var(--theme-surface)] shadow-[5px_5px_0px_var(--theme-highlight)] transition-colors duration-300">
-                            <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <div className="text-[11px] uppercase tracking-[0.12em] font-black opacity-70 mb-2">
-                                        Contact
+                        <button
+                            type="button"
+                            onClick={() => setIsContactExpanded(!isContactExpanded)}
+                            className="col-span-2 text-left outline-none cursor-pointer p-4 bg-[var(--theme-surface)] brightness-110 border-4 border-[var(--theme-primary)] rounded-[20px] flex items-center justify-between font-black uppercase tracking-widest text-[10px] text-[var(--theme-primary)] transition-all duration-300 shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none"
+                        >
+                            <span>Contact & Bank Details</span>
+                            <span className={`w-6 h-6 rounded-full bg-[var(--theme-primary)] text-[var(--theme-surface)] flex items-center justify-center font-bold text-[10px] transform transition-transform duration-300 ${isContactExpanded ? 'rotate-180' : 'rotate-0'}`}>▼</span>
+                        </button>
+
+                        <div className={`col-span-2 grid transition-all duration-300 ease-in-out ${isContactExpanded ? 'grid-rows-[1fr] opacity-100 -mt-2' : 'grid-rows-[0fr] opacity-0'}`}>
+                            <div className="overflow-hidden">
+                                <div className="bg-[var(--theme-primary)] rounded-[28px] p-5 text-[var(--theme-surface)] shadow-[5px_5px_0px_var(--theme-highlight)] transition-colors duration-300 mt-2">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div>
+                                            <div className="text-[11px] uppercase tracking-[0.12em] font-black opacity-70 mb-2">
+                                                Contact
+                                            </div>
+
+                                            <div className="text-lg font-black break-all leading-tight">
+                                                {formData.email || '-'}
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    <div className="text-lg font-black break-all leading-tight">
-                                        {formData.email || '-'}
+                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t-2 border-[var(--theme-surface)] opacity-90">
+
+                                        <div>
+                                            <div className="text-[10px] uppercase tracking-[0.12em] font-black opacity-60 mb-2">
+                                                Bank
+                                            </div>
+
+                                            <div className="text-base font-black break-all leading-tight">
+                                                {formData.bankName || '-'}
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <div className="text-[10px] uppercase tracking-[0.12em] font-black opacity-60 mb-2">
+                                                No Rekening
+                                            </div>
+
+                                            <div className="text-base font-black break-all leading-tight">
+                                                {formData.bankAccountNumber || '-'}
+                                            </div>
+                                        </div>
+
+                                        <div className="col-span-2">
+                                            <div className="text-[10px] uppercase tracking-[0.12em] font-black opacity-60 mb-2">
+                                                Atas Nama
+                                            </div>
+
+                                            <div className="text-base font-black break-all leading-tight">
+                                                {formData.bankAccountName || '-'}
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4 pt-4 border-t-2 border-[var(--theme-surface)] opacity-90">
-
-                                <div>
-                                    <div className="text-[10px] uppercase tracking-[0.12em] font-black opacity-60 mb-2">
-                                        Bank
-                                    </div>
-
-                                    <div className="text-base font-black break-all leading-tight">
-                                        {formData.bankName || '-'}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <div className="text-[10px] uppercase tracking-[0.12em] font-black opacity-60 mb-2">
-                                        No Rekening
-                                    </div>
-
-                                    <div className="text-base font-black break-all leading-tight">
-                                        {formData.bankAccountNumber || '-'}
-                                    </div>
-                                </div>
-
-                                <div className="col-span-2">
-                                    <div className="text-[10px] uppercase tracking-[0.12em] font-black opacity-60 mb-2">
-                                        Atas Nama
-                                    </div>
-
-                                    <div className="text-base font-black break-all leading-tight">
-                                        {formData.bankAccountName || '-'}
-                                    </div>
-                                </div>
-
                             </div>
                         </div>
 
