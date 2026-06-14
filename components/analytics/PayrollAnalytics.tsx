@@ -56,7 +56,7 @@ export default function PayrollAnalytics({
                             <div className="text-[11px] font-black uppercase tracking-[0.08em] opacity-70 mb-2">Employee</div>
                             <div className="text-3xl font-black leading-none tracking-tight">{employees.length}</div>
                         </div>
-                        <div className="bg-[var(--theme-surface)] rounded-[24px] p-4 text-[var(--theme-highlight)] shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
+                        <div className="bg-[var(--theme-surface)] rounded-[24px] p-4 text-[var(--theme-accent)] shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                             <div className="text-[11px] font-black uppercase tracking-[0.08em] opacity-70 mb-2">Absence</div>
                             <div className="text-3xl font-black leading-none tracking-tight">{report.totalAbsence}</div>
                         </div>
@@ -65,7 +65,7 @@ export default function PayrollAnalytics({
                         <div className="text-3xl font-black leading-none tracking-tight">{report.totalOvertimeDays}x</div>
                     </div>
                         <div className="bg-[var(--theme-surface)] rounded-[24px] p-4 shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
-                            <div className="text-[11px] font-black uppercase tracking-[0.08em] text-[var(--theme-accent)] mb-2">Lembur ({Number(report.totalOvertimeHours.toFixed(2))} Jam)</div>
+                            <div className="text-[11px] font-black uppercase tracking-[0.08em] text-[var(--theme-highlight)] mb-2">Lembur ({Number(report.totalOvertimeHours.toFixed(2))} Jam)</div>
                             <div className="text-2xl font-black text-[var(--theme-highlight)] leading-none tracking-tight">Rp {Math.round(report.totalOvertime).toLocaleString()}</div>
                         </div>
                         <div className="bg-[var(--theme-surface)] rounded-[24px] p-4 shadow-[4px_4px_0px_var(--theme-primary)] text-[var(--theme-primary)] transition-colors duration-300">

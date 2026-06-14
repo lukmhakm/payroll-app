@@ -153,10 +153,28 @@ export default function AttendanceList({
                                                                                 {item.check_out || '--:--'}
                                                                             </div>
                                                                         </div>
+
+                                                                        {Number(item.overtime_hours || 0) > 0 && (
+                                                                            <div>
+                                                                                <div className="text-[11px] font-black uppercase tracking-[0.08em] text-[var(--theme-highlight)] mb-1">
+                                                                                    Lembur
+                                                                                </div>
+                                                                                <div className="text-[var(--theme-primary)] text-xl font-black tracking-tight leading-none">
+                                                                                    {Number(item.overtime_hours).toFixed(1).replace('.0', '')} Jam
+                                                                                </div>
+                                                                            </div>
+                                                                        )}
                                                                     </div>
 
-                                                                    <div className="mt-4 inline-flex px-3 py-1 bg-[var(--theme-accent)] text-[var(--theme-surface)] rounded-full border-2 border-[var(--theme-primary)] text-xs font-black uppercase tracking-wide leading-none transition-colors duration-300">
-                                                                        {item.status || 'Hadir'}
+                                                                    <div className="mt-4 flex flex-wrap gap-2">
+                                                                        <div className="inline-flex px-3 py-1 bg-[var(--theme-accent)] text-[var(--theme-surface)] rounded-full border-2 border-[var(--theme-primary)] text-xs font-black uppercase tracking-wide leading-none transition-colors duration-300">
+                                                                            {item.status || 'Hadir'}
+                                                                        </div>
+                                                                        {Number(item.overtime_hours || 0) > 0 && (
+                                                                            <div className="inline-flex px-3 py-1 bg-[var(--theme-highlight)] text-[var(--theme-surface)] rounded-full border-2 border-[var(--theme-primary)] text-xs font-black uppercase tracking-wide leading-none transition-colors duration-300">
+                                                                                Lembur: {Number(item.overtime_hours).toFixed(1).replace('.0', '')} Jam
+                                                                            </div>
+                                                                        )}
                                                                     </div>
                                                                 </div>
 

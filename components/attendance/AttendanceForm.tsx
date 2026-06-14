@@ -341,7 +341,7 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
 
                             {/* Total Lembur */}
                             <div className="text-sm font-black uppercase bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
-                                Total Lembur: <span className="text-[var(--theme-accent)]">{calculateOvertime()} Jam</span>
+                                Total Lembur: <span className="text-[var(--theme-highlight)]">{calculateOvertime()} Jam</span>
                             </div>
 
                             {selectedEmployeesData.length > 0 && (
