@@ -125,7 +125,7 @@ export default function EditAttendanceModal({ attendance, employees, onClose, re
 
                 {/* Total Lembur */}
                 <div className="text-sm font-black uppercase bg-[var(--theme-primary)] p-4 rounded-2xl text-[var(--theme-surface)] transition-colors duration-300">
-                    Total Lembur: <span className="text-[var(--theme-highlight)]">{calculateOvertime()} Jam</span>
+                    Total Lembur: <span className="text-sky-400">{calculateOvertime()} Jam</span>
                 </div>
 
                 {selectedEmployeeData && (

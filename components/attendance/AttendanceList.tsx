@@ -84,7 +84,7 @@ export default function AttendanceList({
                                         {monthYear}
                                     </h5>
                                     <p className="text-[var(--theme-surface)] opacity-80 text-sm font-bold uppercase mt-2 tracking-wide">
-                                        {Object.keys(dates).length} Hari Attendance
+                                        {Object.keys(dates).length} Hari Record
                                     </p>
                                 </div>
 
