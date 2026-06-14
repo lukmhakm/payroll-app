@@ -99,12 +99,14 @@ export default function AttendanceList({
                             <div className={`grid transition-all duration-300 ease-in-out ${isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                                 <div className="overflow-hidden">
                                     <div className="p-5 space-y-4 bg-[var(--theme-primary)]">
-                                        {Object.entries(dates).map(([date, items]) => (
-                                            <details
-                                                key={date}
-                                                className="bg-[var(--theme-accent)] border-4 border-[var(--theme-primary)] rounded-[28px] overflow-hidden"
-                                            >
-                                                <summary className="list-none cursor-pointer px-5 py-4 flex items-center justify-between">
+                                        {Object.entries(dates).map(([date, items]) => {
+                                            const hasOvertime = items.some(item => Number(item.overtime_hours || 0) > 0)
+                                            return (
+                                                <details
+                                                    key={date}
+                                                    className={`${hasOvertime ? 'bg-[var(--theme-highlight)]' : 'bg-[var(--theme-accent)]'} border-4 border-[var(--theme-primary)] rounded-[28px] overflow-hidden`}
+                                                >
+                                                    <summary className="list-none cursor-pointer px-5 py-4 flex items-center justify-between">
                                                     <div>
                                                         <div className="text-[var(--theme-surface)] text-2xl font-black tracking-tight leading-none">
                                                             {date}
@@ -208,7 +210,7 @@ export default function AttendanceList({
                                                     ))}
                                                 </div>
                                             </details>
-                                        ))}
+                                        )})}
                                     </div>
                                 </div>
                             </div>
