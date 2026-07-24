@@ -80,15 +80,76 @@ export function useEmployees() {
     fetchEmployees()
   }
 
+  const resignEmployee = async (id: string) => {
+    try {
+      const { error } = await supabase.from('employees').update({ is_active: false }).eq('id', id)
+      if (error) {
+        console.error('EMPLOYEE RESIGN ERROR:', error)
+        alert(`Gagal memproses resign karyawan: ${error.message}`)
+        return false
+      }
+      return true
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('EMPLOYEE RESIGN UNEXPECTED ERROR:', err)
+      alert(`Terjadi kesalahan saat memproses resign: ${message}`)
+      return false
+    } finally {
+      fetchEmployees()
+    }
+  }
+
+  const reactivateEmployee = async (id: string) => {
+    try {
+      const { error } = await supabase.from('employees').update({ is_active: true }).eq('id', id)
+      if (error) {
+        console.error('EMPLOYEE REACTIVATE ERROR:', error)
+        alert(`Gagal mengaktifkan karyawan: ${error.message}`)
+        return false
+      }
+      return true
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('EMPLOYEE REACTIVATE UNEXPECTED ERROR:', err)
+      alert(`Terjadi kesalahan saat mengaktifkan karyawan: ${message}`)
+      return false
+    } finally {
+      fetchEmployees()
+    }
+  }
+
   const deleteEmployee = async (id: string) => {
-    await supabase.from('employees').delete().eq('id', id)
-    fetchEmployees()
+    try {
+      // Hapus data absensi & riwayat penggajian terkait terlebih dahulu (mencegah error foreign key 23503)
+      const { error: attErr } = await supabase.from('attendance').delete().eq('employee_id', id)
+      if (attErr) console.error('ATTENDANCE DELETE ERROR:', attErr)
+
+      const { error: histErr } = await supabase.from('payroll_history').delete().eq('employee_id', id)
+      if (histErr) console.error('PAYROLL HISTORY DELETE ERROR:', histErr)
+
+      const { error: empErr } = await supabase.from('employees').delete().eq('id', id)
+      if (empErr) {
+        console.error('EMPLOYEE DELETE ERROR:', empErr)
+        alert(`Gagal menghapus data karyawan: ${empErr.message}`)
+        return false
+      }
+      return true
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err)
+      console.error('EMPLOYEE DELETE UNEXPECTED ERROR:', err)
+      alert(`Terjadi kesalahan saat menghapus karyawan: ${message}`)
+      return false
+    } finally {
+      fetchEmployees()
+    }
   }
 
   return {
     employees,
     fetchEmployees,
     addEmployee,
+    resignEmployee,
+    reactivateEmployee,
     deleteEmployee,
   }
 }

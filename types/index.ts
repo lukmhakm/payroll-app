@@ -13,6 +13,7 @@ export interface Employee {
   bank_account_number?: string
   bank_account_name?: string
   email?: string
+  is_active?: boolean
   created_at?: string
 }
 

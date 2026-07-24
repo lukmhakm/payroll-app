@@ -21,9 +21,11 @@ import type { PayrollHistory as PayrollHistoryType } from '@/types'
 
 export default function Home() {
 
-  const { employees, fetchEmployees, addEmployee, deleteEmployee } = useEmployees()
+  const { employees, fetchEmployees, addEmployee, resignEmployee, reactivateEmployee, deleteEmployee } = useEmployees()
   const { attendances, fetchAttendances } = useAttendances()
   const { payrollHistories, fetchPayrollHistories } = usePayrollHistories()
+
+  const [employeeTab, setEmployeeTab] = useState<'all' | 'active' | 'resigned'>('active')
 
   const [selectedPayroll, setSelectedPayroll] =
     useState<any>(null)
@@ -222,20 +224,68 @@ export default function Home() {
             <div className="flex flex-col gap-12 md:gap-16">
               <div className="flex flex-col gap-8 md:gap-16">
                 <div>
-                  <h3
-                    className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none px-1 mb-6 transition-colors duration-300 text-[var(--theme-accent)]"
-                  >
-                    TEAM DIRECTORY
-                  </h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                    <h3
+                      className="text-3xl md:text-[42px] font-black uppercase tracking-[-0.04em] leading-none px-1 transition-colors duration-300 text-[var(--theme-accent)]"
+                    >
+                      TEAM DIRECTORY
+                    </h3>
+                    <div className="flex bg-[var(--theme-surface)] brightness-110 border-2 border-[var(--theme-primary)] rounded-xl p-1 shadow-[2px_2px_0px_var(--theme-primary)] text-xs font-black self-start sm:self-auto">
+                      <button
+                        type="button"
+                        onClick={() => setEmployeeTab('active')}
+                        className={`px-3 py-1.5 rounded-lg transition-colors ${employeeTab === 'active' ? 'bg-[var(--theme-primary)] text-[var(--theme-surface)]' : 'text-[var(--theme-primary)]'}`}
+                      >
+                        Aktif ({employees.filter(e => e.is_active !== false).length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEmployeeTab('resigned')}
+                        className={`px-3 py-1.5 rounded-lg transition-colors ${employeeTab === 'resigned' ? 'bg-[var(--theme-primary)] text-[var(--theme-surface)]' : 'text-[var(--theme-primary)]'}`}
+                      >
+                        Resign ({employees.filter(e => e.is_active === false).length})
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEmployeeTab('all')}
+                        className={`px-3 py-1.5 rounded-lg transition-colors ${employeeTab === 'all' ? 'bg-[var(--theme-primary)] text-[var(--theme-surface)]' : 'text-[var(--theme-primary)]'}`}
+                      >
+                        Semua ({employees.length})
+                      </button>
+                    </div>
+                  </div>
                   <div className="space-y-4">
-                    {employees.map((employee) => (
-                      <EmployeeCard
-                        key={employee.id}
-                        employee={employee}
-                        deleteEmployee={deleteEmployee}
-                        refreshEmployees={fetchEmployees}
-                      />
-                    ))}
+                    {employees
+                      .filter((employee) => {
+                        if (employeeTab === 'active') return employee.is_active !== false
+                        if (employeeTab === 'resigned') return employee.is_active === false
+                        return true
+                      })
+                      .map((employee) => (
+                        <EmployeeCard
+                          key={employee.id}
+                          employee={employee}
+                          resignEmployee={resignEmployee}
+                          reactivateEmployee={reactivateEmployee}
+                          deleteEmployee={async (id: string) => {
+                            const success = await deleteEmployee(id)
+                            if (success) {
+                              fetchAttendances()
+                              fetchPayrollHistories()
+                            }
+                          }}
+                          refreshEmployees={fetchEmployees}
+                        />
+                      ))}
+                    {employees.filter((e) => {
+                      if (employeeTab === 'active') return e.is_active !== false
+                      if (employeeTab === 'resigned') return e.is_active === false
+                      return true
+                    }).length === 0 && (
+                      <div className="bg-[var(--theme-surface)] border-2 border-[var(--theme-primary)] rounded-2xl p-6 text-center font-black uppercase text-sm opacity-60">
+                        Tidak ada data karyawan {employeeTab === 'active' ? 'aktif' : (employeeTab === 'resigned' ? 'resign' : '')}
+                      </div>
+                    )}
                   </div>
                 </div>
 

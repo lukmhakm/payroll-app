@@ -83,6 +83,11 @@ export function calculatePayrollReport(
             return workDate >= start && workDate <= end
         })
         
+        // Karyawan resign (is_active === false) diabaikan dari payroll bulan ini jika tidak ada absensi & belum ada slip gaji
+        if (employee.is_active === false && employeeAttendances.length === 0 && !finalized) {
+            return
+        }
+        
         const hadirCount = employeeAttendances.filter(a => a.status === 'hadir').length
         totalAttendanceCount += hadirCount
 

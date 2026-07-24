@@ -6,14 +6,17 @@ import type { Employee } from '@/types'
 
 interface Props {
     employee: Employee
+    resignEmployee?: (id: string) => void
+    reactivateEmployee?: (id: string) => void
     deleteEmployee: (id: string) => void
     refreshEmployees: () => void
 }
 
-export default function EmployeeCard({ employee, deleteEmployee, refreshEmployees }: Props) {
+export default function EmployeeCard({ employee, resignEmployee, reactivateEmployee, deleteEmployee, refreshEmployees }: Props) {
     const [isEditing, setIsEditing] = useState(false)
     const [loading, setLoading] = useState(false)
     const [isContactExpanded, setIsContactExpanded] = useState(false)
+    const isResigned = employee.is_active === false
     
     const [formData, setFormData] = useState({
         name: employee.name, position: employee.position, salary: employee.base_salary,
@@ -56,7 +59,7 @@ export default function EmployeeCard({ employee, deleteEmployee, refreshEmployee
     }
 
     return (
-        <div className="bg-[var(--theme-surface)] border-4 border-[var(--theme-primary)] rounded-[32px] p-7 mb-6 shadow-[8px_8px_0px_var(--theme-primary)] transition-colors duration-300">
+        <div className={`bg-[var(--theme-surface)] border-4 border-[var(--theme-primary)] rounded-[32px] p-7 mb-6 shadow-[8px_8px_0px_var(--theme-primary)] transition-all duration-300 ${isResigned ? 'opacity-80 grayscale-[20%]' : ''}`}>
             {isEditing ? (
                 <div className="flex flex-col gap-3">
                     <input name="name" value={formData.name} onChange={handleChange} className="bg-[var(--theme-surface)] brightness-110 border-4 border-[var(--theme-primary)] px-4 py-4 rounded-2xl text-[var(--theme-primary)] text-sm font-black outline-none shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300" />
@@ -135,11 +138,18 @@ export default function EmployeeCard({ employee, deleteEmployee, refreshEmployee
                     <div className="flex items-start justify-between gap-4 mb-7">
 
                         <div className="min-w-0 flex-1">
-                            <h4 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-[var(--theme-primary)] leading-none break-words transition-colors duration-300">
-                                {formData.name}
-                            </h4>
+                            <div className="flex items-center gap-3 flex-wrap mb-1">
+                                <h4 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-[var(--theme-primary)] leading-none break-words transition-colors duration-300">
+                                    {formData.name}
+                                </h4>
+                                {isResigned && (
+                                    <span className="px-3 py-1 bg-[var(--theme-accent)] text-[var(--theme-surface)] border-2 border-[var(--theme-primary)] rounded-full text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_var(--theme-primary)]">
+                                        RESIGN
+                                    </span>
+                                )}
+                            </div>
 
-                            <p className="text-[var(--theme-accent)] text-base mt-3 font-black uppercase tracking-[0.08em] leading-none transition-colors duration-300">
+                            <p className="text-[var(--theme-accent)] text-base mt-2 font-black uppercase tracking-[0.08em] leading-none transition-colors duration-300">
                                 {formData.position}
                             </p>
                         </div>
@@ -262,26 +272,50 @@ export default function EmployeeCard({ employee, deleteEmployee, refreshEmployee
 
                     </div>
 
-                    <div className="flex gap-3 mt-6">
-
+                    <div className="flex flex-wrap gap-3 mt-6">
                         <button
                             onClick={() => setIsEditing(true)}
-                            className="flex-1 bg-[var(--theme-highlight)] text-[var(--theme-surface)] py-4 rounded-2xl text-lg font-black uppercase shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
+                            className="flex-1 bg-[var(--theme-highlight)] text-[var(--theme-surface)] py-4 rounded-2xl text-base font-black uppercase shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
                         >
                             Edit
                         </button>
 
-                        <button
-                            onClick={() => {
-                                if (confirm(`Yakin ingin menghapus data karyawan ${formData.name}?`)) {
-                                    deleteEmployee(employee.id)
-                                }
-                            }}
-                            className="flex-1 bg-[var(--theme-accent)] hover:brightness-90 text-[var(--theme-surface)] py-4 rounded-2xl text-lg font-black uppercase shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
-                        >
-                            Hapus
-                        </button>
-
+                        {!isResigned ? (
+                            <button
+                                onClick={() => {
+                                    if (confirm(`Ubah status karyawan ${formData.name} menjadi RESIGN / Non-Aktif? Semua riwayat absensi dan slip gaji karyawan akan TETAP AMAN tersimpan.`)) {
+                                        resignEmployee?.(employee.id)
+                                    }
+                                }}
+                                className="flex-1 bg-[var(--theme-accent)] hover:brightness-90 text-[var(--theme-surface)] py-4 rounded-2xl text-base font-black uppercase shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
+                            >
+                                Set Resign
+                            </button>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={() => {
+                                        if (confirm(`Aktifkan kembali karyawan ${formData.name}?`)) {
+                                            reactivateEmployee?.(employee.id)
+                                        }
+                                    }}
+                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl text-base font-black uppercase shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
+                                >
+                                    Aktifkan
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (confirm(`PERINGATAN: Hapus permanen karyawan ${formData.name} akan menghapus SELURUH histori absensi & slip gaji karyawan ini. Yakin?`)) {
+                                            deleteEmployee(employee.id)
+                                        }
+                                    }}
+                                    className="w-full sm:w-auto px-4 bg-red-800 hover:bg-red-900 text-white py-4 rounded-2xl text-xs font-black uppercase shadow-[4px_4px_0px_var(--theme-primary)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all duration-300"
+                                    title="Hapus permanen beserta histori"
+                                >
+                                    Hapus Permanen
+                                </button>
+                            </>
+                        )}
                     </div>
 
                 </div>

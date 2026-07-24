@@ -81,7 +81,9 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
     const [loading, setLoading] = useState(false)
     const [showAdvanced, setShowAdvanced] = useState(false)
 
-    const selectedEmployeesData = employees.filter(
+    const activeEmployees = employees.filter(e => e.is_active !== false)
+
+    const selectedEmployeesData = activeEmployees.filter(
         (employee) => selectedEmployees.includes(employee.id)
     )
 
@@ -116,10 +118,10 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
     }
 
     const toggleAllEmployees = () => {
-        if (selectedEmployees.length === employees.length) {
+        if (selectedEmployees.length === activeEmployees.length) {
             setSelectedEmployees([])
         } else {
-            setSelectedEmployees(employees.map(e => e.id))
+            setSelectedEmployees(activeEmployees.map(e => e.id))
         }
     }
 
@@ -179,16 +181,16 @@ export default function AttendanceForm({ employees, attendances, refreshAttendan
                         </summary>
                         <div className="absolute left-0 right-0 top-full mt-2 bg-[var(--theme-surface)] text-[var(--theme-primary)] brightness-110 border-2 border-[var(--theme-primary)] rounded-2xl shadow-[4px_4px_0px_var(--theme-primary)] overflow-hidden">
                             <div className="max-h-[240px] overflow-y-auto p-2 space-y-1">
-                                <label className="flex items-center gap-3 p-3 hover:brightness-95 rounded-xl cursor-pointer transition-colors border-b-2 border-dashed border-[var(--theme-primary)] border-opacity-20">
+                                 <label className="flex items-center gap-3 p-3 hover:brightness-95 rounded-xl cursor-pointer transition-colors border-b-2 border-dashed border-[var(--theme-primary)] border-opacity-20">
                                     <input 
                                         type="checkbox" 
-                                        checked={employees.length > 0 && selectedEmployees.length === employees.length} 
+                                        checked={activeEmployees.length > 0 && selectedEmployees.length === activeEmployees.length} 
                                         onChange={toggleAllEmployees} 
                                         className="w-5 h-5 accent-[var(--theme-accent)] cursor-pointer" 
                                     />
                                     <span className="font-black uppercase tracking-wider text-sm">Pilih Semua</span>
                                 </label>
-                                {employees.map((employee) => (
+                                {activeEmployees.map((employee) => (
                                     <label key={employee.id} className="flex items-center gap-3 p-3 hover:brightness-95 rounded-xl cursor-pointer transition-colors">
                                         <input 
                                             type="checkbox" 
