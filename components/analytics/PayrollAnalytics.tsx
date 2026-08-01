@@ -54,7 +54,7 @@ export default function PayrollAnalytics({
                             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-6 gap-4 mt-6 mb-4">
                         <div className="bg-[var(--theme-primary)] rounded-[24px] p-4 text-[var(--theme-surface)] shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                             <div className="text-[11px] font-black uppercase tracking-[0.08em] opacity-70 mb-2">Employee</div>
-                            <div className="text-3xl font-black leading-none tracking-tight">{employees.length}</div>
+                            <div className="text-3xl font-black leading-none tracking-tight">{report.details.length}</div>
                         </div>
                         <div className="bg-[var(--theme-surface)] rounded-[24px] p-4 text-[var(--theme-accent)] shadow-[4px_4px_0px_var(--theme-primary)] transition-colors duration-300">
                             <div className="text-[11px] font-black uppercase tracking-[0.08em] opacity-70 mb-2">Absence</div>
